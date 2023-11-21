@@ -84,10 +84,6 @@ export class APIClient {
   public async iterateDevices(
     iteratee: ResourceIteratee<ArmisDevice>,
   ): Promise<void> {
-    const queryParam = JSON.stringify({
-      aql: 'in:devices timeFrame:"17 Days"',
-    });
-
     const request = new Promise<void>((resolve, reject) => {
       this.logger.info(
         '/api/v1/search/?aql=' +
