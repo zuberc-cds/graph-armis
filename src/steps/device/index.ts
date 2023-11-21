@@ -1,25 +1,29 @@
 import {
-  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
-  IntegrationMissingKeyError,
-  getRawData,
 } from '@jupiterone/integration-sdk-core';
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { AcmeGroup } from '../../types';
-import { ACCOUNT_ENTITY_KEY } from '../account';
 import { Entities, Steps, Relationships } from '../constants';
-import {
-  createAccountGroupRelationship,
-  createAccountUserRelationship,
-  createGroupEntity,
-  createGroupUserRelationship,
-  createUserEntity,
-} from './converter';
+import { createDeviceEntity } from './converter';
 
-export async function fetchUsers({
+export const DEVICE_ENTITY_KEY = 'entity:device';
+
+export async function fetchDevices({
+  instance,
+  jobState,
+  logger,
+}: IntegrationStepExecutionContext<IntegrationConfig>) {
+  const apiClient = createAPIClient(instance.config, logger);
+  await apiClient.verifyAuthentication();
+
+  await apiClient.iterateDevices(async (device) => {
+    await jobState.addEntity(createDeviceEntity(device));
+  });
+}
+
+/*export async function fetchUsers({
   instance,
   jobState,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
@@ -83,10 +87,18 @@ export async function buildGroupUserRelationships({
       }
     },
   );
-}
+}*/
 
-export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
+export const deviceSteps: IntegrationStep<IntegrationConfig>[] = [
   {
+    id: Steps.DEVICES,
+    name: 'Fetch Devices',
+    entities: [Entities.DEVICE],
+    relationships: [Relationships.ACCOUNT_MANAGES_DEVICES],
+    executionHandler: fetchDevices,
+    dependsOn: [Steps.ACCOUNT],
+  },
+  /*{
     id: Steps.USERS,
     name: 'Fetch Users',
     entities: [Entities.USER],
@@ -109,5 +121,5 @@ export const accessSteps: IntegrationStep<IntegrationConfig>[] = [
     relationships: [Relationships.GROUP_HAS_USER],
     dependsOn: [Steps.GROUPS, Steps.USERS],
     executionHandler: buildGroupUserRelationships,
-  },
+  },*/
 ];

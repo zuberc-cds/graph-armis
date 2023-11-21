@@ -1,9 +1,12 @@
-import http from 'http';
+import https from 'https';
 
-import { IntegrationProviderAuthenticationError } from '@jupiterone/integration-sdk-core';
+import {
+  IntegrationLogger,
+  IntegrationProviderAuthenticationError,
+} from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
-import { AcmeUser, AcmeGroup } from './types';
+import { AcmeUser, AcmeGroup, ArmisDevice } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -16,29 +19,53 @@ export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
  * resources.
  */
 export class APIClient {
-  constructor(readonly config: IntegrationConfig) {}
+  authToken: string;
+  constructor(
+    readonly config: IntegrationConfig,
+    readonly logger: IntegrationLogger,
+  ) {}
 
   public async verifyAuthentication(): Promise<void> {
     // TODO make the most light-weight request possible to validate
     // authentication works with the provided credentials, throw an err if
     // authentication fails
+    // TODO take key from config
+    this.logger.info(this.config);
+    const postData = JSON.stringify({
+      secret_key: this.config.apiKey,
+    });
+    this.logger.info(postData);
     const request = new Promise<void>((resolve, reject) => {
-      http.get(
+      const req = https.request(
         {
-          hostname: 'localhost',
+          hostname: 'integration-crestdata.armis.com',
           port: 443,
-          path: '/api/v1/some/endpoint?limit=1',
-          agent: false,
-          timeout: 10,
+          path: '/api/v1/access_token/',
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
         },
         (res) => {
-          if (res.statusCode !== 200) {
-            reject(new Error('Provider authentication failed'));
-          } else {
-            resolve();
-          }
+          res.resume();
+          res
+            .on('data', (data) => {
+              const res = JSON.parse(data);
+              //this.logger.info('response====' + res);
+              if (!res.data.access_token) {
+                reject(new Error('Provider authentication failed'));
+              }
+              this.authToken = res.data.access_token;
+              this.logger.info(this.authToken);
+              resolve();
+            })
+            .on('error', () => {
+              reject(new Error('Provider authentication failed'));
+            });
         },
       );
+      req.write(postData);
+      req.end();
     });
 
     try {
@@ -46,10 +73,75 @@ export class APIClient {
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
-        endpoint: 'https://localhost/api/v1/some/endpoint?limit=1',
+        endpoint:
+          'https://integration-crestdata.armis.com/api/v1/some/access_token',
         status: err.status,
         statusText: err.statusText,
       });
+    }
+  }
+
+  public async iterateDevices(
+    iteratee: ResourceIteratee<ArmisDevice>,
+  ): Promise<void> {
+    const queryParam = JSON.stringify({
+      aql: 'in:devices timeFrame:"17 Days"',
+    });
+
+    const request = new Promise<void>((resolve, reject) => {
+      this.logger.info(
+        '/api/v1/search/?aql=' +
+          encodeURIComponent('in:devices timeFrame:"18 Days"'),
+      );
+      const results: any = [];
+      const req = https.request(
+        {
+          hostname: 'integration-crestdata.armis.com',
+          port: 443,
+          path:
+            '/api/v1/search/?aql=' +
+            encodeURIComponent('in:devices timeFrame:"18 Days"'),
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authToken,
+          },
+          method: 'GET',
+        },
+        (res) => {
+          res.resume();
+          res
+            .on('data', (data) => {
+              //this.logger.info("here====" + data);
+              results.push(data);
+            })
+            .on('end', () => {
+              //this.logger.info(results);
+              const res = JSON.parse(Buffer.concat(results).toString());
+              for (const device of res.data.results) {
+                this.logger.info(device);
+                void iteratee(device);
+              }
+              resolve();
+            })
+            .on('error', () => {
+              reject(new Error('Provider authentication failed'));
+            });
+        },
+      );
+      req.end();
+    });
+
+    try {
+      await request;
+    } catch (err) {
+      this.logger.error(err);
+      /*throw new IntegrationProviderAuthenticationError({
+        cause: err,
+        endpoint:
+          'https://integration-crestdata.armis.com/api/v1/some/access_token',
+        status: err.status,
+        statusText: err.statusText,
+      });*/
     }
   }
 
@@ -119,6 +211,9 @@ export class APIClient {
   }
 }
 
-export function createAPIClient(config: IntegrationConfig): APIClient {
-  return new APIClient(config);
+export function createAPIClient(
+  config: IntegrationConfig,
+  logger: IntegrationLogger,
+): APIClient {
+  return new APIClient(config, logger);
 }

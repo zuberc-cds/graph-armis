@@ -11,6 +11,18 @@ export interface AcmeGroup {
   users?: Pick<AcmeUser, 'id'>[];
 }
 
+export interface ArmisDevice {
+  id: number;
+  name: string;
+  category: string;
+  type: string;
+  model: string;
+  manufacturer: string;
+  operatingSystem: string;
+  operatingSystemVersion: string;
+  lastSeen: string;
+}
+
 // Those can be useful to a degree, but often they're just full of optional
 // values. Understanding the response data may be more reliably accomplished by
 // reviewing the API response recordings produced by testing the wrapper client

@@ -9,11 +9,11 @@ export function createAccountEntity(): Entity {
   return createIntegrationEntity({
     entityData: {
       source: {
-        id: 'acme-unique-account-id',
-        name: 'Example Co. Acme Account',
+        id: 'armis-unique-account-id',
+        name: 'Example Co. Armis Account',
       },
       assign: {
-        _key: 'acme-unique-account-id',
+        _key: 'armis-unique-account-id',
         _type: Entities.ACCOUNT._type,
         _class: Entities.ACCOUNT._class,
         mfaEnabled: true,

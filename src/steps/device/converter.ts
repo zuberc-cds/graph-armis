@@ -7,7 +7,34 @@ import {
 } from '@jupiterone/integration-sdk-core';
 
 import { Entities } from '../constants';
-import { AcmeGroup, AcmeUser } from '../../types';
+import { AcmeGroup, AcmeUser, ArmisDevice } from '../../types';
+
+export function createDeviceEntity(sourceDevice: ArmisDevice): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: sourceDevice,
+      assign: {
+        _type: Entities.DEVICE._type,
+        _class: Entities.DEVICE._class,
+        _key: sourceDevice.name + '-' + sourceDevice.id.toString(),
+        id: sourceDevice.id.toString(),
+        deviceId: sourceDevice.id.toString(),
+        category: sourceDevice.category,
+        model: sourceDevice.model,
+        make: sourceDevice.manufacturer,
+        lastSeen: sourceDevice.lastSeen,
+        serial: sourceDevice.name,
+        name: sourceDevice.name,
+        osName: sourceDevice.operatingSystem
+          ? sourceDevice.operatingSystem
+          : '',
+        osVersion: sourceDevice.operatingSystemVersion
+          ? sourceDevice.operatingSystemVersion
+          : '',
+      },
+    },
+  });
+}
 
 export function createUserEntity(user: AcmeUser): Entity {
   return createIntegrationEntity({
