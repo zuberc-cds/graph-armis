@@ -16,7 +16,6 @@ export async function fetchSites({
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config, logger);
-  // BECAUSE THE AUTHENTICATION IS ALREADY DONE
   await apiClient.verifyAuthentication();
 
   await apiClient.iterateSites(async (site) => {

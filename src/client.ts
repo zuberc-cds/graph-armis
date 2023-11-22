@@ -160,7 +160,6 @@ export class APIClient {
             .on('end', () => {
               this.logger.info('Sites fetched successfully');
               const res = JSON.parse(Buffer.concat(results).toString());
-              this.logger.info('res: ', res);
               for (const site of res.data.sites) {
                 void iteratee(site);
               }
