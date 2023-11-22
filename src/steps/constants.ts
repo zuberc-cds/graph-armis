@@ -10,10 +10,11 @@ export const Steps = {
   GROUPS: 'fetch-groups',
   GROUP_USER_RELATIONSHIPS: 'build-user-group-relationships',
   DEVICES: 'fetch-devices',
+  SITES: 'fetch-sites',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'GROUP' | 'USER' | 'DEVICE',
+  'ACCOUNT' | 'GROUP' | 'USER' | 'DEVICE' | 'SITE',
   StepEntityMetadata
 > = {
   DEVICE: {
@@ -32,6 +33,22 @@ export const Entities: Record<
         operatingSystemVersion: { type: 'string' },
       },
       required: ['category', 'id', 'model', 'manufacturer', 'lastSeen'],
+    },
+  },
+  SITE: {
+    resourceName: 'Site',
+    _type: 'armis_site',
+    _class: ['Site'],
+    schema: {
+      properties: {
+        id: { type: 'string' },
+        let: { type: 'string' },
+        lng: { type: 'string' },
+        location: { type: 'string' },
+        name: { type: 'string' },
+        parentId: { type: 'string' },
+      },
+      required: ['id', 'location'],
     },
   },
   ACCOUNT: {
@@ -78,7 +95,8 @@ export const Relationships: Record<
   | 'ACCOUNT_HAS_USER'
   | 'ACCOUNT_HAS_GROUP'
   | 'GROUP_HAS_USER'
-  | 'ACCOUNT_MANAGES_DEVICES',
+  | 'ACCOUNT_MANAGES_DEVICES'
+  | 'ACCOUNT_HAS_SITE',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
@@ -104,5 +122,11 @@ export const Relationships: Record<
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.MANAGES,
     targetType: Entities.DEVICE._type,
+  },
+  ACCOUNT_HAS_SITE: {
+    _type: 'armis_account_has_site',
+    sourceType: Entities.SITE._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.SITE._type,
   },
 };
