@@ -99,6 +99,7 @@ The following entities are created:
 | --------- | --------------- | --------------- |
 | Account   | `armis_account` | `Account`       |
 | Device    | `armis_device`  | `Device`        |
+| Site      | `armis_site`    | `Site`          |
 
 ### Relationships
 
@@ -107,6 +108,7 @@ The following relationships are created:
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
 | `armis_account`       | **MANAGES**           | `armis_device`        |
+| `armis_site`          | **HAS**               | `armis_site`          |
 
 <!--
 ********************************************************************************

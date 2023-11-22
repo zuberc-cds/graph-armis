@@ -6,7 +6,7 @@ import {
 } from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
-import { AcmeUser, AcmeGroup, ArmisDevice } from './types';
+import { AcmeUser, AcmeGroup, ArmisDevice, ArmisSite } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -30,11 +30,9 @@ export class APIClient {
     // authentication works with the provided credentials, throw an err if
     // authentication fails
     // TODO take key from config
-    this.logger.info(this.config);
     const postData = JSON.stringify({
       secret_key: this.config.apiKey,
     });
-    this.logger.info(postData);
     const request = new Promise<void>((resolve, reject) => {
       const req = https.request(
         {
@@ -51,12 +49,10 @@ export class APIClient {
           res
             .on('data', (data) => {
               const res = JSON.parse(data);
-              //this.logger.info('response====' + res);
               if (!res.data.access_token) {
                 reject(new Error('Provider authentication failed'));
               }
               this.authToken = res.data.access_token;
-              this.logger.info(this.authToken);
               resolve();
             })
             .on('error', () => {
@@ -87,7 +83,7 @@ export class APIClient {
     const request = new Promise<void>((resolve, reject) => {
       this.logger.info(
         '/api/v1/search/?aql=' +
-          encodeURIComponent('in:devices timeFrame:"18 Days"'),
+          encodeURIComponent('in:devices timeFrame:"20 Days"'),
       );
       const results: any = [];
       const req = https.request(
@@ -96,7 +92,7 @@ export class APIClient {
           port: 443,
           path:
             '/api/v1/search/?aql=' +
-            encodeURIComponent('in:devices timeFrame:"18 Days"'),
+            encodeURIComponent('in:devices timeFrame:"20 Days"'),
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -107,14 +103,11 @@ export class APIClient {
           res.resume();
           res
             .on('data', (data) => {
-              //this.logger.info("here====" + data);
               results.push(data);
             })
             .on('end', () => {
-              //this.logger.info(results);
               const res = JSON.parse(Buffer.concat(results).toString());
               for (const device of res.data.results) {
-                this.logger.info(device);
                 void iteratee(device);
               }
               resolve();
@@ -138,6 +131,58 @@ export class APIClient {
         status: err.status,
         statusText: err.statusText,
       });*/
+    }
+  }
+
+  public async iterateSites(
+    iteratee: ResourceIteratee<ArmisSite>,
+  ): Promise<void> {
+    const request = new Promise<void>((resolve, reject) => {
+      this.logger.info('/api/v1/sites/?');
+      const results: any = [];
+      const req = https.request(
+        {
+          hostname: 'integration-crestdata.armis.com',
+          port: 443,
+          path: '/api/v1/sites/?',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authToken,
+          },
+          method: 'GET',
+        },
+        (res) => {
+          res.resume();
+          res
+            .on('data', (data) => {
+              results.push(data);
+            })
+            .on('end', () => {
+              this.logger.info('Sites fetched successfully');
+              const res = JSON.parse(Buffer.concat(results).toString());
+              for (const site of res.data.sites) {
+                void iteratee(site);
+              }
+              resolve();
+            })
+            .on('error', () => {
+              reject(new Error('Provider authentication failed'));
+            });
+        },
+      );
+      req.end();
+    });
+
+    try {
+      await request;
+    } catch (err) {
+      this.logger.error(err);
+      throw new IntegrationProviderAuthenticationError({
+        cause: err,
+        endpoint: 'https://integration-crestdata.armis.com/api/v1/sites/',
+        status: err.status,
+        statusText: err.statusText,
+      });
     }
   }
 
