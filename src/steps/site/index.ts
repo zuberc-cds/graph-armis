@@ -1,12 +1,18 @@
 import {
+  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
 } from '@jupiterone/integration-sdk-core';
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { Entities, Steps, Relationships } from '../constants';
-import { createSiteEntity } from './converter';
+import {
+  Entities,
+  Steps,
+  Relationships,
+  ARMIS_ACCOUNT_ENTITY_KEY,
+} from '../constants';
+import { createAccountSiteRelationship, createSiteEntity } from './converter';
 
 export const SITE_ENTITY_KEY = 'entity:site';
 
@@ -16,10 +22,23 @@ export async function fetchSites({
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config, logger);
+
   await apiClient.verifyAuthentication();
 
+  const accountEntity = await jobState.getData<Entity>(
+    ARMIS_ACCOUNT_ENTITY_KEY,
+  );
+  if (!accountEntity) {
+    logger.warn('Error fetching sites: accountEntity does not exist');
+    return;
+  }
+
   await apiClient.iterateSites(async (site) => {
-    await jobState.addEntity(createSiteEntity(site));
+    const siteEntity = createSiteEntity(site);
+    await jobState.addEntity(siteEntity);
+    await jobState.addRelationship(
+      createAccountSiteRelationship(accountEntity, siteEntity),
+    );
   });
 }
 

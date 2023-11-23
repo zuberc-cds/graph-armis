@@ -1,12 +1,21 @@
 import {
+  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
 } from '@jupiterone/integration-sdk-core';
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
-import { Entities, Steps, Relationships } from '../constants';
-import { createDeviceEntity } from './converter';
+import {
+  Entities,
+  Steps,
+  Relationships,
+  ARMIS_ACCOUNT_ENTITY_KEY,
+} from '../constants';
+import {
+  createAccountDeviceRelationship,
+  createDeviceEntity,
+} from './converter';
 
 export const DEVICE_ENTITY_KEY = 'entity:device';
 
@@ -18,8 +27,20 @@ export async function fetchDevices({
   const apiClient = createAPIClient(instance.config, logger);
   await apiClient.verifyAuthentication();
 
+  const accountEntity = await jobState.getData<Entity>(
+    ARMIS_ACCOUNT_ENTITY_KEY,
+  );
+  if (!accountEntity) {
+    logger.warn('Error fetching devices: accountEntity does not exist');
+    return;
+  }
+
   await apiClient.iterateDevices(async (device) => {
-    await jobState.addEntity(createDeviceEntity(device));
+    const deviceEntity = createDeviceEntity(device);
+    await jobState.addEntity(deviceEntity);
+    await jobState.addRelationship(
+      createAccountDeviceRelationship(accountEntity, deviceEntity),
+    );
   });
 }
 
