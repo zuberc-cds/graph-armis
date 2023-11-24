@@ -103,3 +103,14 @@ export function createGroupUserRelationship(
     to: user,
   });
 }
+
+export function createAccountDeviceRelationship(
+  account: Entity,
+  device: Entity,
+): Relationship {
+  return createDirectRelationship({
+    _class: RelationshipClass.MANAGES,
+    from: account,
+    to: device,
+  });
+}

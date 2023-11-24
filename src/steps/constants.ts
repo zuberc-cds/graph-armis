@@ -118,7 +118,7 @@ export const Relationships: Record<
     targetType: Entities.USER._type,
   },
   ACCOUNT_MANAGES_DEVICES: {
-    _type: 'armis_account_has_devices',
+    _type: 'armis_account_manages_device',
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.MANAGES,
     targetType: Entities.DEVICE._type,
@@ -130,3 +130,5 @@ export const Relationships: Record<
     targetType: Entities.SITE._type,
   },
 };
+
+export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;

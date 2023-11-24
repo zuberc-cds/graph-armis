@@ -55,3 +55,14 @@ export function createGroupUserRelationship(
     to: user,
   });
 }
+
+export function createAccountSiteRelationship(
+  account: Entity,
+  site: Entity,
+): Relationship {
+  return createDirectRelationship({
+    _class: RelationshipClass.HAS,
+    from: account,
+    to: site,
+  });
+}

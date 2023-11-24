@@ -107,8 +107,8 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `armis_account`       | **MANAGES**           | `armis_device`        |
 | `armis_site`          | **HAS**               | `armis_site`          |
+| `armis_account`       | **MANAGES**           | `armis_device`        |
 
 <!--
 ********************************************************************************

@@ -83,7 +83,7 @@ export class APIClient {
     const request = new Promise<void>((resolve, reject) => {
       this.logger.info(
         '/api/v1/search/?aql=' +
-          encodeURIComponent('in:devices timeFrame:"20 Days"'),
+          encodeURIComponent('in:devices timeFrame:"21 Days"'),
       );
       const results: any = [];
       const req = https.request(
@@ -92,7 +92,7 @@ export class APIClient {
           port: 443,
           path:
             '/api/v1/search/?aql=' +
-            encodeURIComponent('in:devices timeFrame:"20 Days"'),
+            encodeURIComponent('in:devices timeFrame:"21 Days"'),
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
