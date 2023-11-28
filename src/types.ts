@@ -32,6 +32,46 @@ export interface ArmisSite {
   parentId: string;
 }
 
+export interface ArmisAlert extends ArmisFinding {
+  alertId: number;
+  title: string;
+  classification: string;
+  type: string;
+  policyId: number;
+  policyTitle: string;
+  time: string;
+  deviceIds: number[];
+}
+
+export interface ArmisVulnerability extends ArmisFinding {
+  cveUid: string;
+  affectedDevicesCount: number;
+  attackComplexity: string;
+  attackVector: string;
+  availabilityImpact: string;
+  cvssScore: number;
+  epssPercentile: number;
+  epssScore: number;
+  exploitabilityScore: number;
+  impactScore: number;
+  integrityImpact: string;
+  publishedDate: string;
+  score: number;
+  commonName: string;
+  threatTags: string[];
+}
+
+export interface ArmisFinding {
+  id: string;
+  description: string;
+  severity: string;
+  status: string;
+}
+
+export type ArmisDeviceVulnerability = {
+  cveUid: string;
+};
+
 // Those can be useful to a degree, but often they're just full of optional
 // values. Understanding the response data may be more reliably accomplished by
 // reviewing the API response recordings produced by testing the wrapper client

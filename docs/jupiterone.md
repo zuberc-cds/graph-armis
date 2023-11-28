@@ -95,11 +95,14 @@ https://github.com/JupiterOne/sdk/blob/main/docs/integrations/development.md
 
 The following entities are created:
 
-| Resources | Entity `_type`  | Entity `_class` |
-| --------- | --------------- | --------------- |
-| Account   | `armis_account` | `Account`       |
-| Device    | `armis_device`  | `Device`        |
-| Site      | `armis_site`    | `Site`          |
+| Resources     | Entity `_type`        | Entity `_class` |
+| ------------- | --------------------- | --------------- |
+| Account       | `armis_account`       | `Account`       |
+| Device        | `armis_device`        | `Device`        |
+| Finding       | `armis_finding`       | `Finding`       |
+| FindingAlert  | `armis_finding_alert` | `Finding`       |
+| Site          | `armis_site`          | `Site`          |
+| Vulnerability | `armis_vulnerability` | `Vulnerability` |
 
 ### Relationships
 
@@ -107,8 +110,11 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `armis_site`          | **HAS**               | `armis_site`          |
+| `armis_account`       | **HAS**               | `armis_site`          |
 | `armis_account`       | **MANAGES**           | `armis_device`        |
+| `armis_device`        | **HAS**               | `armis_finding`       |
+| `armis_device`        | **HAS**               | `armis_finding_alert` |
+| `armis_finding`       | **IS**                | `armis_vulnerability` |
 
 <!--
 ********************************************************************************

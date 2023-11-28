@@ -28,6 +28,9 @@ export const instanceConfigFields: IntegrationInstanceConfigFieldMap = {
     type: 'string',
     mask: true,
   },
+  timeFrame: {
+    type: 'string',
+  },
 };
 
 /**
@@ -44,6 +47,11 @@ export interface IntegrationConfig extends IntegrationInstanceConfig {
    * The provider API client secret used to authenticate requests.
    */
   apiKey: string;
+
+  /**
+   * The provider API timeframe to limit data.
+   */
+  timeFrame: string;
 }
 
 export async function validateInvocation(
@@ -51,7 +59,7 @@ export async function validateInvocation(
 ) {
   const { config } = context.instance;
 
-  if (!config.apiKey) {
+  if (!config.apiKey || !config.host) {
     throw new IntegrationValidationError(
       'Config requires all of {host, apiKey}',
     );

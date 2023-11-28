@@ -27,9 +27,9 @@ export async function fetchDevices({
   const apiClient = createAPIClient(instance.config, logger);
   await apiClient.verifyAuthentication();
 
-  const accountEntity = await jobState.getData<Entity>(
+  const accountEntity = (await jobState.getData<Entity>(
     ARMIS_ACCOUNT_ENTITY_KEY,
-  );
+  )) as Entity;
   if (!accountEntity) {
     logger.warn('Error fetching devices: accountEntity does not exist');
     return;
