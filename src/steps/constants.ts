@@ -11,10 +11,22 @@ export const Steps = {
   GROUP_USER_RELATIONSHIPS: 'build-user-group-relationships',
   DEVICES: 'fetch-devices',
   SITES: 'fetch-sites',
+  FINDING: 'fetch-findings',
+  FINDING_ALERTS: 'fetch-finding-alerts',
+  FINDING_ALERTS_DEVICE_RELATIONSHIPS:
+    'build-finding-alert-device-relationships',
+  FINDING_DEVICE_RELATIONSHIPS: 'build-finding-device-relationships',
 };
 
 export const Entities: Record<
-  'ACCOUNT' | 'GROUP' | 'USER' | 'DEVICE' | 'SITE',
+  | 'ACCOUNT'
+  | 'GROUP'
+  | 'USER'
+  | 'DEVICE'
+  | 'SITE'
+  | 'FINDING'
+  | 'FINDING_ALERT'
+  | 'FINDING_VULNERABILITY',
   StepEntityMetadata
 > = {
   DEVICE: {
@@ -32,7 +44,7 @@ export const Entities: Record<
         operatingSystem: { type: 'string' },
         operatingSystemVersion: { type: 'string' },
       },
-      required: ['category', 'id', 'model', 'manufacturer', 'lastSeen'],
+      required: ['category', 'lastSeen'],
     },
   },
   SITE: {
@@ -51,17 +63,80 @@ export const Entities: Record<
       required: ['id', 'location'],
     },
   },
+  FINDING_ALERT: {
+    resourceName: 'FindingAlert',
+    _type: 'armis_finding_alert',
+    _class: ['Finding'],
+    schema: {
+      properties: {
+        alertId: { type: 'integer' },
+        title: { type: 'string' },
+        description: { type: 'string' },
+        classification: { type: 'string' },
+        type: { type: 'string' },
+        severity: { type: 'string' },
+        status: { type: 'string' },
+        time: { type: 'string' },
+        deviceIds: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      },
+      required: ['classification', 'severity'],
+    },
+  },
+  FINDING: {
+    resourceName: 'Finding',
+    _type: 'armis_finding',
+    _class: ['Finding'],
+    schema: {
+      properties: {
+        description: { type: 'string' },
+        severity: { type: 'string' },
+        status: { type: 'string' },
+      },
+    },
+  },
+  FINDING_VULNERABILITY: {
+    resourceName: 'Vulnerability',
+    _type: 'armis_vulnerability',
+    _class: ['Vulnerability'],
+    schema: {
+      properties: {
+        id: { type: 'string' },
+        cveUid: { type: 'string' },
+        affectedDevicesCount: { type: 'number' },
+        attackComplexity: { type: 'string' },
+        attackVector: { type: 'string' },
+        availabilityImpact: { type: 'string' },
+        cvssScore: { type: 'number' },
+        epssPercentile: { type: 'number' },
+        epssScore: { type: 'number' },
+        exploitabilityScore: { type: 'number' },
+        impactScore: { type: 'number' },
+        integrityImpact: { type: 'string' },
+        publishedDate: { type: 'string' },
+        score: { type: 'number' },
+        commonName: { type: 'string' },
+        threatTags: {
+          type: 'array',
+          items: { type: 'string' },
+        },
+      },
+      required: ['cveUid', 'cvssScore', 'score'],
+    },
+  },
   ACCOUNT: {
     resourceName: 'Account',
     _type: 'armis_account',
     _class: ['Account'],
-    schema: {
+    /*schema: {
       properties: {
         mfaEnabled: { type: 'boolean' },
         manager: { type: 'string' },
       },
       required: ['mfaEnabled', 'manager'],
-    },
+    },*/
   },
   GROUP: {
     resourceName: 'UserGroup',
@@ -96,7 +171,10 @@ export const Relationships: Record<
   | 'ACCOUNT_HAS_GROUP'
   | 'GROUP_HAS_USER'
   | 'ACCOUNT_MANAGES_DEVICES'
-  | 'ACCOUNT_HAS_SITE',
+  | 'ACCOUNT_HAS_SITE'
+  | 'DEVICE_HAS_FINDING_ALERT'
+  | 'DEVICE_HAS_FINDING'
+  | 'FINDING_VULNERABILITY_IS_VULNERABILITY',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
@@ -125,9 +203,27 @@ export const Relationships: Record<
   },
   ACCOUNT_HAS_SITE: {
     _type: 'armis_account_has_site',
-    sourceType: Entities.SITE._type,
+    sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.SITE._type,
+  },
+  DEVICE_HAS_FINDING_ALERT: {
+    _type: 'armis_device_has_finding_alert',
+    sourceType: Entities.DEVICE._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.FINDING_ALERT._type,
+  },
+  DEVICE_HAS_FINDING: {
+    _type: 'armis_device_has_finding',
+    sourceType: Entities.DEVICE._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.FINDING._type,
+  },
+  FINDING_VULNERABILITY_IS_VULNERABILITY: {
+    _type: 'armis_finding_is_vulnerability',
+    sourceType: Entities.FINDING._type,
+    _class: RelationshipClass.IS,
+    targetType: Entities.FINDING_VULNERABILITY._type,
   },
 };
 

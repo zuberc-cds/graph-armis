@@ -10,21 +10,26 @@ import { Entities } from '../constants';
 import { AcmeGroup, AcmeUser, ArmisDevice } from '../../types';
 
 export function createDeviceEntity(sourceDevice: ArmisDevice): Entity {
+  /* eslint-disable no-console */
   return createIntegrationEntity({
     entityData: {
       source: sourceDevice,
       assign: {
         _type: Entities.DEVICE._type,
         _class: Entities.DEVICE._class,
-        _key: sourceDevice.name + '-' + sourceDevice.id.toString(),
-        id: sourceDevice.id.toString(),
+        _key: 'armis-device-' + sourceDevice.id.toString(),
+        id: 'armis-device-' + sourceDevice.id.toString(),
         deviceId: sourceDevice.id.toString(),
-        category: sourceDevice.category,
-        model: sourceDevice.model,
+        category: 'asset',
+        model: sourceDevice.model !== null ? sourceDevice.model : '',
         make: sourceDevice.manufacturer,
         lastSeen: sourceDevice.lastSeen,
         serial: sourceDevice.name,
-        name: sourceDevice.name,
+        name:
+          sourceDevice.name !== null
+            ? sourceDevice.name
+            : sourceDevice.id.toString(),
+        displayName: sourceDevice.name,
         osName: sourceDevice.operatingSystem
           ? sourceDevice.operatingSystem
           : '',

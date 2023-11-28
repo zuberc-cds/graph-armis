@@ -10,12 +10,15 @@ if (process.env.LOAD_ENV) {
     path: path.join(__dirname, '../.env'),
   });
 }
+
 const DEFAULT_HOST = 'localhost';
 const DEFAULT_API_KEY = 'dummy';
+const DEFAULT_TIME_FRAME = '25';
 
 export const integrationConfig: IntegrationConfig = {
   host: process.env.HOST || DEFAULT_HOST,
   apiKey: process.env.API_KEY || DEFAULT_API_KEY,
+  timeFrame: process.env.TIME_FRAME || DEFAULT_TIME_FRAME,
 };
 
 export function buildStepTestConfigForStep(stepId: string): StepTestConfig {

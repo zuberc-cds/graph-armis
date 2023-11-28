@@ -2,11 +2,20 @@ import https from 'https';
 
 import {
   IntegrationLogger,
+  IntegrationProviderAPIError,
   IntegrationProviderAuthenticationError,
 } from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from './config';
-import { AcmeUser, AcmeGroup, ArmisDevice, ArmisSite } from './types';
+import {
+  AcmeUser,
+  AcmeGroup,
+  ArmisDevice,
+  ArmisSite,
+  ArmisAlert,
+  ArmisVulnerability,
+  ArmisDeviceVulnerability,
+} from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
@@ -33,12 +42,13 @@ export class APIClient {
     const postData = JSON.stringify({
       secret_key: this.config.apiKey,
     });
+    const path = '/api/v1/access_token/';
     const request = new Promise<void>((resolve, reject) => {
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
-          path: '/api/v1/access_token/',
+          path: path,
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -69,8 +79,7 @@ export class APIClient {
     } catch (err) {
       throw new IntegrationProviderAuthenticationError({
         cause: err,
-        endpoint:
-          'https://integration-crestdata.armis.com/api/v1/some/access_token',
+        endpoint: this.config.apiHost + path,
         status: err.status,
         statusText: err.statusText,
       });
@@ -80,19 +89,20 @@ export class APIClient {
   public async iterateDevices(
     iteratee: ResourceIteratee<ArmisDevice>,
   ): Promise<void> {
+    const path =
+      '/api/v1/search/?aql=' +
+      encodeURIComponent(
+        'in:devices timeFrame:"' + this.config.timeFrame + ' Days"',
+      ) +
+      '&from=0&length=200';
+    this.logger.info(path);
     const request = new Promise<void>((resolve, reject) => {
-      this.logger.info(
-        '/api/v1/search/?aql=' +
-          encodeURIComponent('in:devices timeFrame:"21 Days"'),
-      );
-      const results: any = [];
+      const resultsD: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
-          path:
-            '/api/v1/search/?aql=' +
-            encodeURIComponent('in:devices timeFrame:"21 Days"'),
+          path: path,
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -103,14 +113,22 @@ export class APIClient {
           res.resume();
           res
             .on('data', (data) => {
-              results.push(data);
+              resultsD.push(data);
             })
             .on('end', () => {
-              const res = JSON.parse(Buffer.concat(results).toString());
-              for (const device of res.data.results) {
-                void iteratee(device);
+              const res = JSON.parse(Buffer.concat(resultsD).toString());
+              try {
+                if (!('results' in res.data)) {
+                  this.logger.error('Devices not found');
+                }
+                for (const device of res.data.results) {
+                  void iteratee(device);
+                }
+                this.logger.info('Devices fetched successfully');
+                resolve();
+              } catch (err) {
+                this.logger.error(res);
               }
-              resolve();
             })
             .on('error', () => {
               reject(new Error('Provider authentication failed'));
@@ -123,22 +141,21 @@ export class APIClient {
     try {
       await request;
     } catch (err) {
-      this.logger.error(err);
-      /*throw new IntegrationProviderAuthenticationError({
+      throw new IntegrationProviderAPIError({
         cause: err,
-        endpoint:
-          'https://integration-crestdata.armis.com/api/v1/some/access_token',
+        endpoint: this.config.apiHost + path,
         status: err.status,
         statusText: err.statusText,
-      });*/
+      });
     }
   }
 
   public async iterateSites(
     iteratee: ResourceIteratee<ArmisSite>,
   ): Promise<void> {
+    const path = '/api/v1/sites/?';
+    this.logger.info(path);
     const request = new Promise<void>((resolve, reject) => {
-      this.logger.info('/api/v1/sites/?');
       const results: any = [];
       const req = https.request(
         {
@@ -158,12 +175,19 @@ export class APIClient {
               results.push(data);
             })
             .on('end', () => {
-              this.logger.info('Sites fetched successfully');
               const res = JSON.parse(Buffer.concat(results).toString());
-              for (const site of res.data.sites) {
-                void iteratee(site);
+              try {
+                if (!('sites' in res.data)) {
+                  this.logger.error('Sites not found');
+                }
+                for (const site of res.data.sites) {
+                  void iteratee(site);
+                }
+                this.logger.info('Sites fetched successfully');
+                resolve();
+              } catch (err) {
+                this.logger.error(res);
               }
-              resolve();
             })
             .on('error', () => {
               reject(new Error('Provider authentication failed'));
@@ -176,10 +200,198 @@ export class APIClient {
     try {
       await request;
     } catch (err) {
-      this.logger.error(err);
-      throw new IntegrationProviderAuthenticationError({
+      throw new IntegrationProviderAPIError({
         cause: err,
-        endpoint: 'https://integration-crestdata.armis.com/api/v1/sites/',
+        endpoint: this.config.apiHost + path,
+        status: err.status,
+        statusText: err.statusText,
+      });
+    }
+  }
+
+  public async iterateAlerts(
+    iteratee: ResourceIteratee<ArmisAlert>,
+  ): Promise<void> {
+    const path =
+      '/api/v1/search/?aql=' +
+      encodeURIComponent(
+        'in:alerts timeFrame:"' + this.config.timeFrame + ' Days"',
+      ) +
+      '&from=0&length=200';
+    this.logger.info(path);
+    const request = new Promise<void>((resolve, reject) => {
+      const results: any = [];
+      const req = https.request(
+        {
+          hostname: 'integration-crestdata.armis.com',
+          port: 443,
+          path,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authToken,
+          },
+          method: 'GET',
+        },
+        (res) => {
+          res.resume();
+          res
+            .on('data', (data: any) => {
+              results.push(data);
+            })
+            .on('end', () => {
+              const res = JSON.parse(Buffer.concat(results).toString());
+              try {
+                if (!('results' in res.data)) {
+                  this.logger.error('Alerts not found');
+                }
+                for (const alert of res.data.results) {
+                  void iteratee(alert);
+                }
+                this.logger.info('Alerts fetched successfully');
+                resolve(res);
+              } catch (err) {
+                this.logger.error(res);
+              }
+            })
+            .on('error', () => {
+              reject(new Error('Error while fetching alerts'));
+            });
+        },
+      );
+      req.end();
+    });
+
+    try {
+      await request;
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: err,
+        endpoint: this.config.apiHost + path,
+        status: err.status,
+        statusText: err.statusText,
+      });
+    }
+  }
+
+  public async iterateVulnerabilities(
+    iteratee: ResourceIteratee<ArmisVulnerability>,
+  ): Promise<void> {
+    const path =
+      '/api/v1/search/?aql=' +
+      encodeURIComponent('in:vulnerabilities timeFrame:"23 Days"') +
+      '&from=0&length=200';
+    this.logger.info(path);
+    const request = new Promise<void>((resolve, reject) => {
+      const resultsV: any = [];
+      const req = https.request(
+        {
+          hostname: 'integration-crestdata.armis.com',
+          port: 443,
+          path,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authToken,
+          },
+          method: 'GET',
+        },
+        (res) => {
+          res.resume();
+          res
+            .on('data', (data: any) => {
+              resultsV.push(data);
+            })
+            .on('end', () => {
+              const res = JSON.parse(Buffer.concat(resultsV).toString());
+              try {
+                if (!('results' in res.data)) {
+                  this.logger.error('Vulnerabilities not found');
+                }
+                for (const vulnerability of res.data.results) {
+                  void iteratee(vulnerability);
+                }
+                this.logger.info('Vulnerabilities fetched successfully');
+                resolve();
+              } catch (err) {
+                this.logger.error('===' + res + '====');
+              }
+            })
+            .on('error', () => {
+              reject(new Error('Error while fetching vulnerabilities'));
+            });
+        },
+      );
+      req.end();
+    });
+
+    try {
+      await request;
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: err,
+        endpoint: this.config.apiHost + path,
+        status: err.status,
+        statusText: err.statusText,
+      });
+    }
+  }
+
+  public async iterateDeviceVulnerabilities(
+    deviceId: string,
+    iteratee: ResourceIteratee<ArmisDeviceVulnerability>,
+  ): Promise<void> {
+    const path =
+      '/api/v1/vulnerability-match/?device_ids=' + encodeURIComponent(deviceId);
+    this.logger.info(path);
+    const request = new Promise<void>((resolve, reject) => {
+      const results: any = [];
+      const req = https.request(
+        {
+          hostname: 'integration-crestdata.armis.com',
+          port: 443,
+          path,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authToken,
+          },
+          method: 'GET',
+        },
+        (res) => {
+          res.resume();
+          res
+            .on('data', (data: any) => {
+              results.push(data);
+            })
+            .on('end', () => {
+              const res = JSON.parse(Buffer.concat(results).toString());
+              try {
+                if (!('sample' in res.data)) {
+                  this.logger.error('Device vulnerability matches not found');
+                }
+                for (const vulnerability of res.data.sample) {
+                  void iteratee(vulnerability);
+                }
+                this.logger.info(
+                  'Device vulnerability matches fetched successfully',
+                );
+                resolve();
+              } catch (err) {
+                this.logger.error(res);
+              }
+            })
+            .on('error', () => {
+              reject(new Error('Error while fetching device vulnerabilities'));
+            });
+        },
+      );
+      req.end();
+    });
+
+    try {
+      await request;
+    } catch (err) {
+      throw new IntegrationProviderAPIError({
+        cause: err,
+        endpoint: this.config.apiHost + path,
         status: err.status,
         statusText: err.statusText,
       });

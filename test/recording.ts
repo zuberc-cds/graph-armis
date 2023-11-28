@@ -16,7 +16,7 @@ export function setupProjectRecording(
     redactedResponseHeaders: ['set-cookie'],
     mutateEntry: mutations.unzipGzippedRecordingEntry,
     /*mutateEntry: (entry) => {
-      redact(entry);
+      //redact(entry);
     },*/
   });
 }
