@@ -1,6 +1,9 @@
 import {
   createIntegrationEntity,
+  createDirectRelationship,
   Entity,
+  RelationshipClass,
+  Relationship,
 } from '@jupiterone/integration-sdk-core';
 
 import { Entities } from '../constants';
@@ -20,5 +23,16 @@ export function createAccountEntity(): Entity {
         // hierarchy. See: https://github.com/JupiterOne/data-model/blob/master/src/schemas/Account.json
       },
     },
+  });
+}
+
+export function createAccountVendorRelationship(
+  account: Entity,
+  vendor: Entity,
+): Relationship {
+  return createDirectRelationship({
+    _class: RelationshipClass.HOSTS,
+    from: vendor,
+    to: account,
   });
 }
