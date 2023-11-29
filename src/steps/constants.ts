@@ -43,6 +43,8 @@ export const Entities: Record<
         name: { type: 'string' },
         operatingSystem: { type: 'string' },
         operatingSystemVersion: { type: 'string' },
+        displayName: { type: 'string' },
+        message: { type: 'string' },
       },
       required: ['category', 'lastSeen'],
     },
@@ -59,6 +61,7 @@ export const Entities: Record<
         location: { type: 'string' },
         name: { type: 'string' },
         parentId: { type: 'string' },
+        displayName: { type: 'string' },
       },
       required: ['id', 'location'],
     },
@@ -152,16 +155,37 @@ export const Entities: Record<
   },
   USER: {
     resourceName: 'User',
-    _type: 'acme_user',
+    _type: 'armis_user',
     _class: ['User'],
     schema: {
       properties: {
-        username: { type: 'string' },
+        id: { type: 'number' },
+        name: { type: 'string' },
         email: { type: 'string' },
-        active: { type: 'boolean' },
-        firstName: { type: 'string' },
+        location: { type: 'string' },
+        phone: { type: 'number' },
+        roleAssignment: [
+          {
+            name: [{ type: 'string' }],
+            sites: [{ type: 'string' }],
+          },
+        ],
+        isActive: { type: 'boolean' },
+        lastLoginTime: { type: 'string' },
+        reportPermissions: { type: 'string' },
+        twoFactorAuthentication: { type: 'boolean' },
+        title: { type: 'string' },
+        username: { type: 'string' },
+        role: { type: 'string' },
       },
-      required: ['username', 'email', 'active', 'firstName'],
+      required: [
+        'id',
+        'email',
+        'username',
+        'twoFactorAuthentication',
+        'isActive',
+        'name',
+      ],
     },
   },
 };
@@ -174,11 +198,12 @@ export const Relationships: Record<
   | 'ACCOUNT_HAS_SITE'
   | 'DEVICE_HAS_FINDING_ALERT'
   | 'DEVICE_HAS_FINDING'
-  | 'FINDING_VULNERABILITY_IS_VULNERABILITY',
+  | 'FINDING_VULNERABILITY_IS_VULNERABILITY'
+  | 'SITE_HAS_DEVICES',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
-    _type: 'acme_account_has_user',
+    _type: 'armis_account_has_user',
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
@@ -225,6 +250,13 @@ export const Relationships: Record<
     _class: RelationshipClass.IS,
     targetType: Entities.FINDING_VULNERABILITY._type,
   },
+  SITE_HAS_DEVICES: {
+    _type: 'armis_site_has_device',
+    sourceType: Entities.SITE._type,
+    _class: RelationshipClass.HAS,
+    targetType: Entities.DEVICE._type,
+  },
 };
 
 export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;
+export const ARMIS_DEVICE_ENTITY_KEY = Entities.DEVICE._type;

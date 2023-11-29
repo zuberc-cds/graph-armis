@@ -15,6 +15,7 @@ import {
   ArmisAlert,
   ArmisVulnerability,
   ArmisDeviceVulnerability,
+  ArmisUser,
 } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
@@ -161,7 +162,7 @@ export class APIClient {
         {
           hostname: 'integration-crestdata.armis.com',
           port: 443,
-          path: '/api/v1/sites/?',
+          path: '/api/v1/sites/?length=100',
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -398,35 +399,63 @@ export class APIClient {
     }
   }
 
-  /**
-   * Iterates each user resource in the provider.
-   *
-   * @param iteratee receives each resource to produce entities/relationships
-   */
   public async iterateUsers(
-    iteratee: ResourceIteratee<AcmeUser>,
+    iteratee: ResourceIteratee<ArmisUser>,
   ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
+    const request = new Promise<void>((resolve, reject) => {
+      this.logger.info('/api/v1/users/?');
+      const results: any = [];
+      const req = https.request(
+        {
+          hostname: 'integration-crestdata.armis.com',
+          port: 443,
+          path: '/api/v1/users/?length=10',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: this.authToken,
+          },
+          method: 'GET',
+        },
+        (res) => {
+          res.resume();
+          res
+            .on('data', (data) => {
+              results.push(data);
+            })
+            .on('end', () => {
+              const res = JSON.parse(Buffer.concat(results).toString());
 
-    const users: AcmeUser[] = [
-      {
-        id: 'acme-user-1',
-        name: 'User One',
-      },
-      {
-        id: 'acme-user-2',
-        name: 'User Two',
-      },
-    ];
+              try {
+                if (!('users' in res.data)) {
+                  this.logger.error('Users not found');
+                }
+                for (const user of res.data.users) {
+                  void iteratee(user);
+                }
+                this.logger.info('Users fetched successfully');
+                resolve(res);
+              } catch (err) {
+                this.logger.error(res);
+              }
+            })
+            .on('error', () => {
+              reject(new Error('Provider authentication failed'));
+            });
+        },
+      );
+      req.end();
+    });
 
-    for (const user of users) {
-      await iteratee(user);
+    try {
+      await request;
+    } catch (err) {
+      this.logger.error(err);
+      throw new IntegrationProviderAuthenticationError({
+        cause: err,
+        endpoint: 'https://integration-crestdata.armis.com/api/v1/users/',
+        status: err.status,
+        statusText: err.statusText,
+      });
     }
   }
 
