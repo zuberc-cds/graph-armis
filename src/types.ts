@@ -55,7 +55,10 @@ export interface ArmisUser {
   username: string;
 }
 
-export interface ArmisAlert extends ArmisFinding {
+export interface ArmisAlert {
+  description: string;
+  severity: string;
+  status: string;
   alertId: number;
   title: string;
   classification: string;
