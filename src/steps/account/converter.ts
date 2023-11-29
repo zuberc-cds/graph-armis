@@ -8,6 +8,11 @@ import {
 
 import { Entities } from '../constants';
 
+/**
+ * Creates an account entity.
+ *
+ * @return {Entity} The created account entity.
+ */
 export function createAccountEntity(): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -26,6 +31,13 @@ export function createAccountEntity(): Entity {
   });
 }
 
+/**
+ * Creates a relationship between an account and a vendor.
+ *
+ * @param {Entity} account - The account entity.
+ * @param {Entity} vendor - The vendor entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createAccountVendorRelationship(
   account: Entity,
   vendor: Entity,

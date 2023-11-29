@@ -19,26 +19,39 @@ import {
 
 export const DEVICE_ENTITY_KEY = 'entity:device';
 
-export async function fetchDevices({
-  instance,
-  jobState,
-  logger,
-}: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const apiClient = createAPIClient(instance.config, logger);
+/**
+ * Fetch devices from the API and add them to the job state.
+ *
+ * @param {IntegrationStepExecutionContext<IntegrationConfig>} context - The execution context.
+ */
+export async function fetchDevices(context) {
+  // Create an API client using the instance config and logger
+  const apiClient = createAPIClient(context.instance.config, context.logger);
+
+  // Verify authentication with the API client
   await apiClient.verifyAuthentication();
 
-  const accountEntity = (await jobState.getData<Entity>(
+  // Get the account entity from the job state
+  const accountEntity = await context.jobState.getData(
     ARMIS_ACCOUNT_ENTITY_KEY,
-  )) as Entity;
+  );
+
+  // If the account entity doesn't exist, log a warning and return
   if (!accountEntity) {
-    logger.warn('Error fetching devices: accountEntity does not exist');
+    context.logger.warn('Error fetching devices: accountEntity does not exist');
     return;
   }
 
+  // Iterate over the devices using the API client
   await apiClient.iterateDevices(async (device) => {
+    // Create a device entity from the device
     const deviceEntity = createDeviceEntity(device);
-    await jobState.addEntity(deviceEntity);
-    await jobState.addRelationship(
+
+    // Add the device entity to the job state
+    await context.jobState.addEntity(deviceEntity);
+
+    // Add a relationship between the account entity and the device entity
+    await context.jobState.addRelationship(
       createAccountDeviceRelationship(accountEntity, deviceEntity),
     );
   });

@@ -9,6 +9,12 @@ import {
 import { Entities } from '../constants';
 import { ArmisSite } from '../../types';
 
+/**
+ * Creates a site entity based on the provided source site.
+ *
+ * @param {ArmisSite} sourceSite - The source site to create the entity from.
+ * @return {Entity} The created site entity.
+ */
 export function createSiteEntity(sourceSite: ArmisSite): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -24,6 +30,13 @@ export function createSiteEntity(sourceSite: ArmisSite): Entity {
   });
 }
 
+/**
+ * Creates a relationship between an account and a user.
+ *
+ * @param {Entity} account - The account entity.
+ * @param {Entity} user - The user entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createAccountUserRelationship(
   account: Entity,
   user: Entity,
@@ -34,6 +47,14 @@ export function createAccountUserRelationship(
     to: user,
   });
 }
+
+/**
+ * Create an account-group relationship.
+ *
+ * @param {Entity} account - The account entity.
+ * @param {Entity} group - The group entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createAccountGroupRelationship(
   account: Entity,
   group: Entity,
@@ -45,6 +66,13 @@ export function createAccountGroupRelationship(
   });
 }
 
+/**
+ * Creates a group-user relationship.
+ *
+ * @param {Entity} group - The group entity.
+ * @param {Entity} user - The user entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createGroupUserRelationship(
   group: Entity,
   user: Entity,
@@ -56,6 +84,13 @@ export function createGroupUserRelationship(
   });
 }
 
+/**
+ * Creates a relationship between an account and a site.
+ *
+ * @param {Entity} account - The account entity.
+ * @param {Entity} site - The site entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createAccountSiteRelationship(
   account: Entity,
   site: Entity,

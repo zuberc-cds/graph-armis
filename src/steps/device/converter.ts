@@ -9,6 +9,12 @@ import {
 import { Entities } from '../constants';
 import { AcmeGroup, AcmeUser, ArmisDevice } from '../../types';
 
+/**
+ * Creates a device entity based on the given source device.
+ *
+ * @param {ArmisDevice} sourceDevice - The source device to create the entity from.
+ * @return {Entity} The created entity.
+ */
 export function createDeviceEntity(sourceDevice: ArmisDevice): Entity {
   /* eslint-disable no-console */
   return createIntegrationEntity({
@@ -41,6 +47,12 @@ export function createDeviceEntity(sourceDevice: ArmisDevice): Entity {
   });
 }
 
+/**
+ * Creates a user entity based on the given AcmeUser object.
+ *
+ * @param {AcmeUser} user - The AcmeUser object used as the source of the entity.
+ * @return {Entity} The created user entity.
+ */
 export function createUserEntity(user: AcmeUser): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -60,6 +72,12 @@ export function createUserEntity(user: AcmeUser): Entity {
   });
 }
 
+/**
+ * Creates a group entity based on the provided AcmeGroup object.
+ *
+ * @param {AcmeGroup} group - The AcmeGroup object used as the source for creating the entity.
+ * @return {Entity} The created entity.
+ */
 export function createGroupEntity(group: AcmeGroup): Entity {
   return createIntegrationEntity({
     entityData: {
@@ -77,6 +95,13 @@ export function createGroupEntity(group: AcmeGroup): Entity {
   });
 }
 
+/**
+ * Creates a relationship between an account and a user.
+ *
+ * @param {Entity} account - The account entity.
+ * @param {Entity} user - The user entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createAccountUserRelationship(
   account: Entity,
   user: Entity,
@@ -87,6 +112,14 @@ export function createAccountUserRelationship(
     to: user,
   });
 }
+
+/**
+ * Creates a relationship between an account and a group.
+ *
+ * @param {Entity} account - The account entity.
+ * @param {Entity} group - The group entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createAccountGroupRelationship(
   account: Entity,
   group: Entity,
@@ -98,6 +131,13 @@ export function createAccountGroupRelationship(
   });
 }
 
+/**
+ * Creates a group-user relationship.
+ *
+ * @param {Entity} group - The group entity.
+ * @param {Entity} user - The user entity.
+ * @return {Relationship} The created relationship.
+ */
 export function createGroupUserRelationship(
   group: Entity,
   user: Entity,
