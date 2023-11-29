@@ -7,7 +7,7 @@ import {
 export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
-  PERSON: 'fetch-person',
+  PERSON: 'fetch-persons',
   GROUPS: 'fetch-groups',
   SITE_DEVICES_RELATIONSHIPS: 'build-site-devices-relationships',
   DEVICES: 'fetch-devices',

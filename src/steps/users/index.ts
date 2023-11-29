@@ -57,7 +57,10 @@ export const userSteps: IntegrationStep<IntegrationConfig>[] = [
     id: Steps.USERS,
     name: 'Fetch Users',
     entities: [Entities.USER],
-    relationships: [Relationships.ACCOUNT_HAS_USER],
+    relationships: [
+      Relationships.ACCOUNT_HAS_USER,
+      Relationships.USER_IS_PERSON,
+    ],
     executionHandler: fetchUsers,
     dependsOn: [Steps.ACCOUNT],
   },

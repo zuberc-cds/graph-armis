@@ -100,7 +100,7 @@ export const siteSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Build Site -> Devices Relationships',
     entities: [],
     relationships: [Relationships.SITE_HAS_DEVICES],
-    dependsOn: [Steps.SITES],
+    dependsOn: [Steps.SITES, Steps.DEVICES],
     executionHandler: buildSiteDeviceRelationships,
   },
 ];
