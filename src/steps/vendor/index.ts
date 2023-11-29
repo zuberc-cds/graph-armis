@@ -15,7 +15,9 @@ export async function fetchVendor({
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const vendorEntity = await jobState.addEntity(createVendorEntity());
   logger.info(`Created vendor entity: ${vendorEntity.id}`);
-  await jobState.setData(ARMIS_VENDOR_ENTITY_KEY, vendorEntity);
+  if (vendorEntity) {
+    await jobState.setData(ARMIS_VENDOR_ENTITY_KEY, vendorEntity);
+  }
 }
 
 export const vendorSteps: IntegrationStep<IntegrationConfig>[] = [
