@@ -5,7 +5,7 @@ export const accountSpec: StepSpec<IntegrationConfig>[] = [
   {
     id: 'fetch-vendor',
     name: 'Armis',
-    category: ['security'],
+    category: 'security',
     entities: [
       {
         resourceName: 'Vendor',
