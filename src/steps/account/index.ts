@@ -24,9 +24,11 @@ export async function fetchAccountDetails({
   const accountEntity = await jobState.addEntity(createAccountEntity());
 
   await jobState.setData(ARMIS_ACCOUNT_ENTITY_KEY, accountEntity);
-  await jobState.addRelationship(
-    createAccountVendorRelationship(accountEntity, vendorEntity),
-  );
+  if (vendorEntity) {
+    await jobState.addRelationship(
+      createAccountVendorRelationship(accountEntity, vendorEntity),
+    );
+  }
 }
 
 export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
