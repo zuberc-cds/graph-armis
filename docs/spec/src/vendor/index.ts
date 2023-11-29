@@ -4,7 +4,7 @@ import { IntegrationConfig } from '../../../../src/config';
 export const accountSpec: StepSpec<IntegrationConfig>[] = [
   {
     id: 'fetch-vendor',
-    name: 'Armis',
+    name: 'Vendor',
     entities: [
       {
         resourceName: 'Vendor',
