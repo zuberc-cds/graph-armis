@@ -16,7 +16,7 @@ export const Steps = {
   FINDING_ALERTS_DEVICE_RELATIONSHIPS:
     'build-finding-alert-device-relationships',
   FINDING_DEVICE_RELATIONSHIPS: 'build-finding-device-relationships',
-  VENDOR: 'armis-vendor',
+  VENDOR: 'fetch-vendor',
 };
 
 export const Entities: Record<
@@ -73,7 +73,7 @@ export const Entities: Record<
       properties: {
         id: { type: 'string' },
         category: { type: 'string' },
-        name: { type: 'string'},
+        name: { type: 'string' },
       },
       required: ['id', 'category'],
     },
@@ -251,4 +251,3 @@ export const Relationships: Record<
 
 export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;
 export const ARMIS_VENDOR_ENTITY_KEY = Entities.VENDOR._type;
-
