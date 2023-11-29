@@ -16,6 +16,7 @@ export const Steps = {
   FINDING_ALERTS_DEVICE_RELATIONSHIPS:
     'build-finding-alert-device-relationships',
   FINDING_DEVICE_RELATIONSHIPS: 'build-finding-device-relationships',
+  VENDOR: 'fetch-vendor',
 };
 
 export const Entities: Record<
@@ -26,6 +27,7 @@ export const Entities: Record<
   | 'SITE'
   | 'FINDING'
   | 'FINDING_ALERT'
+  | 'VENDOR'
   | 'FINDING_VULNERABILITY',
   StepEntityMetadata
 > = {
@@ -61,6 +63,19 @@ export const Entities: Record<
         parentId: { type: 'string' },
       },
       required: ['id', 'location'],
+    },
+  },
+  VENDOR: {
+    resourceName: 'Vendor',
+    _type: 'armis_vendor',
+    _class: ['Vendor'],
+    schema: {
+      properties: {
+        id: { type: 'string' },
+        category: { type: 'string' },
+        name: { type: 'string' },
+      },
+      required: ['id', 'category'],
     },
   },
   FINDING_ALERT: {
@@ -174,6 +189,7 @@ export const Relationships: Record<
   | 'ACCOUNT_HAS_SITE'
   | 'DEVICE_HAS_FINDING_ALERT'
   | 'DEVICE_HAS_FINDING'
+  | 'VENDOR_HOSTS_ACCOUNT'
   | 'FINDING_VULNERABILITY_IS_VULNERABILITY',
   StepRelationshipMetadata
 > = {
@@ -219,6 +235,12 @@ export const Relationships: Record<
     _class: RelationshipClass.HAS,
     targetType: Entities.FINDING._type,
   },
+  VENDOR_HOSTS_ACCOUNT: {
+    _type: 'armis_vendor_hosts_account',
+    sourceType: Entities.VENDOR._type,
+    _class: RelationshipClass.HOSTS,
+    targetType: Entities.ACCOUNT._type,
+  },
   FINDING_VULNERABILITY_IS_VULNERABILITY: {
     _type: 'armis_finding_is_vulnerability',
     sourceType: Entities.FINDING._type,
@@ -228,3 +250,4 @@ export const Relationships: Record<
 };
 
 export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;
+export const ARMIS_VENDOR_ENTITY_KEY = Entities.VENDOR._type;
