@@ -26,6 +26,7 @@ export const vendorSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Vendor',
     entities: [Entities.VENDOR],
     relationships: [],
+    dependsOn: [],
     executionHandler: fetchVendor,
   },
 ];
