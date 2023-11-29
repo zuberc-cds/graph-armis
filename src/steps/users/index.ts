@@ -10,7 +10,7 @@ import {
   Entities,
   Steps,
   ARMIS_ACCOUNT_ENTITY_KEY,
-  ARMIS_DEVICE_ENTITY_KEY,
+  ARMIS_USER_ENTITY_KEY,
   Relationships,
 } from '../constants';
 import { createAccountUserRelationship, createUserEntity } from './converter';
@@ -37,7 +37,7 @@ export async function fetchUsers({
   await apiClient.iterateUsers(async (user) => {
     const userEntity = createUserEntity(user);
     await jobState.addEntity(userEntity);
-    await jobState.setData(ARMIS_DEVICE_ENTITY_KEY, userEntity);
+    await jobState.setData(ARMIS_USER_ENTITY_KEY, userEntity);
     await jobState.addRelationship(
       createAccountUserRelationship(accountEntity, userEntity),
     );

@@ -117,7 +117,7 @@ export const deviceSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [Entities.DEVICE],
     relationships: [Relationships.ACCOUNT_MANAGES_DEVICES],
     executionHandler: fetchDevices,
-    dependsOn: [Steps.ACCOUNT],
+    dependsOn: [Steps.ACCOUNT, Steps.SITES],
   },
   /*{
     id: Steps.USERS,

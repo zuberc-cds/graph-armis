@@ -371,9 +371,6 @@ export class APIClient {
                 for (const vulnerability of res.data.sample) {
                   void iteratee(vulnerability);
                 }
-                this.logger.info(
-                  'Device vulnerability matches fetched successfully',
-                );
                 resolve();
               } catch (err) {
                 this.logger.error(res);

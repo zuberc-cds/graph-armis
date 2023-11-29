@@ -260,3 +260,4 @@ export const Relationships: Record<
 
 export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;
 export const ARMIS_DEVICE_ENTITY_KEY = Entities.DEVICE._type;
+export const ARMIS_USER_ENTITY_KEY = Entities.USER._type;

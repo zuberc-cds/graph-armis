@@ -99,14 +99,14 @@ export const siteSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [Entities.SITE],
     relationships: [Relationships.ACCOUNT_HAS_SITE],
     executionHandler: fetchSites,
-    dependsOn: [Steps.ACCOUNT, Steps.DEVICES],
+    dependsOn: [Steps.ACCOUNT],
   },
   {
     id: Steps.GROUP_USER_RELATIONSHIPS,
     name: 'Build Group -> User Relationships',
     entities: [],
     relationships: [Relationships.SITE_HAS_DEVICES],
-    dependsOn: [Steps.SITES, Steps.DEVICES],
+    dependsOn: [Steps.SITES],
     executionHandler: buildSiteDeviceRelationships,
   },
 ];
