@@ -1,6 +1,5 @@
 import {
   Entity,
-  IntegrationMissingKeyError,
   IntegrationStep,
   IntegrationStepExecutionContext,
   getRawData,
@@ -68,18 +67,15 @@ export async function buildSiteDeviceRelationships({
         return;
       }
 
-      for (const siteId of site.networkEquipmentDeviceIds || []) {
+      for (const deviceId of site.networkEquipmentDeviceIds || []) {
         const deviceEntity = await jobState.findEntity(
-          'armis_device_' + siteId,
+          'armis-device-' + deviceId,
         );
 
         if (!deviceEntity) {
-          // throw new IntegrationMissingKeyError(
-          //   `Expected device with key to exist (key=${'armis_device_2115'})`,
-          // );
           logger.warn(
             `Expected device with key to exist (key=${
-              'armis_device_' + siteId
+              'armis-device-' + deviceId
             })`,
           );
         } else {

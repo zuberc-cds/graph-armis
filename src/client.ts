@@ -8,7 +8,6 @@ import {
 
 import { IntegrationConfig } from './config';
 import {
-  AcmeUser,
   AcmeGroup,
   ArmisDevice,
   ArmisSite,
@@ -399,14 +398,15 @@ export class APIClient {
   public async iterateUsers(
     iteratee: ResourceIteratee<ArmisUser>,
   ): Promise<void> {
+    const path = '/api/v1/users/?length=10';
     const request = new Promise<void>((resolve, reject) => {
-      this.logger.info('/api/v1/users/?');
+      this.logger.info(path);
       const results: any = [];
       const req = https.request(
         {
           hostname: 'integration-crestdata.armis.com',
           port: 443,
-          path: '/api/v1/users/?length=10',
+          path,
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -449,7 +449,7 @@ export class APIClient {
       this.logger.error(err);
       throw new IntegrationProviderAuthenticationError({
         cause: err,
-        endpoint: 'https://integration-crestdata.armis.com/api/v1/users/',
+        endpoint: this.config.apiHost + path,
         status: err.status,
         statusText: err.statusText,
       });

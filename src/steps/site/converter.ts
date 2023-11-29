@@ -16,7 +16,7 @@ export function createSiteEntity(sourceSite: ArmisSite): Entity {
       assign: {
         _type: Entities.SITE._type,
         _class: Entities.SITE._class,
-        _key: 'armis_site_' + sourceSite.id.toString(),
+        _key: 'armis-site-' + sourceSite.id.toString(),
         id: sourceSite.id.toString(),
         location: sourceSite.location,
         name: sourceSite.name,
