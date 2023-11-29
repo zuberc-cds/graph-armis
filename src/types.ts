@@ -86,6 +86,7 @@ export interface ArmisVulnerability extends ArmisFinding {
 }
 
 export interface ArmisFinding {
+  id: string;
   description: string;
   severity: string;
   status: string;
