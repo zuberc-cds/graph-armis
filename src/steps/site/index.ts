@@ -13,6 +13,7 @@ import {
   Relationships,
   ARMIS_ACCOUNT_ENTITY_KEY,
   ARMIS_DEVICE_ENTITY_KEY,
+  ARMIS_SITE_ENTITY_KEY,
 } from '../constants';
 import {
   createAccountSiteRelationship,
@@ -20,8 +21,6 @@ import {
   createSiteEntity,
 } from './converter';
 import { ArmisSite } from '../../types';
-
-export const SITE_ENTITY_KEY = 'entity:site';
 
 export async function fetchSites({
   instance,
@@ -43,7 +42,7 @@ export async function fetchSites({
   await apiClient.iterateSites(async (site) => {
     const siteEntity = createSiteEntity(site);
     await jobState.addEntity(siteEntity);
-    await jobState.setData(ARMIS_DEVICE_ENTITY_KEY, siteEntity);
+    await jobState.setData(ARMIS_SITE_ENTITY_KEY, siteEntity);
     await jobState.addRelationship(
       createAccountSiteRelationship(accountEntity, siteEntity),
     );
@@ -98,8 +97,8 @@ export const siteSteps: IntegrationStep<IntegrationConfig>[] = [
     dependsOn: [Steps.ACCOUNT],
   },
   {
-    id: Steps.GROUP_USER_RELATIONSHIPS,
-    name: 'Build Group -> User Relationships',
+    id: Steps.SITE_DEVICES_RELATIONSHIPS,
+    name: 'Build Site -> Devices Relationships',
     entities: [],
     relationships: [Relationships.SITE_HAS_DEVICES],
     dependsOn: [Steps.SITES],

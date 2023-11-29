@@ -7,8 +7,9 @@ import {
 export const Steps = {
   ACCOUNT: 'fetch-account',
   USERS: 'fetch-users',
+  PERSON: 'fetch-person',
   GROUPS: 'fetch-groups',
-  GROUP_USER_RELATIONSHIPS: 'build-user-group-relationships',
+  SITE_DEVICES_RELATIONSHIPS: 'build-site-devices-relationships',
   DEVICES: 'fetch-devices',
   SITES: 'fetch-sites',
   FINDING: 'fetch-findings',
@@ -22,6 +23,7 @@ export const Entities: Record<
   | 'ACCOUNT'
   | 'GROUP'
   | 'USER'
+  | 'PERSON'
   | 'DEVICE'
   | 'SITE'
   | 'FINDING'
@@ -188,6 +190,41 @@ export const Entities: Record<
       ],
     },
   },
+  PERSON: {
+    resourceName: 'Person',
+    _type: 'armis_person',
+    _class: ['Person'],
+    schema: {
+      properties: {
+        id: { type: 'number' },
+        name: { type: 'string' },
+        email: { type: 'string' },
+        location: { type: 'string' },
+        phone: { type: 'number' },
+        roleAssignment: [
+          {
+            name: [{ type: 'string' }],
+            sites: [{ type: 'string' }],
+          },
+        ],
+        isActive: { type: 'boolean' },
+        lastLoginTime: { type: 'string' },
+        reportPermissions: { type: 'string' },
+        twoFactorAuthentication: { type: 'boolean' },
+        title: { type: 'string' },
+        username: { type: 'string' },
+        role: { type: 'string' },
+      },
+      required: [
+        'id',
+        'email',
+        'username',
+        'twoFactorAuthentication',
+        'isActive',
+        'name',
+      ],
+    },
+  },
 };
 
 export const Relationships: Record<
@@ -199,7 +236,8 @@ export const Relationships: Record<
   | 'DEVICE_HAS_FINDING_ALERT'
   | 'DEVICE_HAS_FINDING'
   | 'FINDING_VULNERABILITY_IS_VULNERABILITY'
-  | 'SITE_HAS_DEVICES',
+  | 'SITE_HAS_DEVICES'
+  | 'USER_IS_PERSON',
   StepRelationshipMetadata
 > = {
   ACCOUNT_HAS_USER: {
@@ -207,6 +245,12 @@ export const Relationships: Record<
     sourceType: Entities.ACCOUNT._type,
     _class: RelationshipClass.HAS,
     targetType: Entities.USER._type,
+  },
+  USER_IS_PERSON: {
+    _type: 'armis_user_is_person',
+    sourceType: Entities.USER._type,
+    _class: RelationshipClass.IS,
+    targetType: Entities.PERSON._type,
   },
   ACCOUNT_HAS_GROUP: {
     _type: 'acme_account_has_group',
@@ -260,4 +304,5 @@ export const Relationships: Record<
 
 export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;
 export const ARMIS_DEVICE_ENTITY_KEY = Entities.DEVICE._type;
+export const ARMIS_SITE_ENTITY_KEY = Entities.SITE._type;
 export const ARMIS_USER_ENTITY_KEY = Entities.USER._type;

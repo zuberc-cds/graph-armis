@@ -16,7 +16,7 @@ export function createUserEntity(sourceUser: ArmisUser): Entity {
       assign: {
         _type: Entities.USER._type,
         _class: Entities.USER._class,
-        _key: 'armis_user_' + sourceUser.id.toString(),
+        _key: 'armis-user-' + sourceUser.id.toString(),
         id: sourceUser.id.toString(),
         email: sourceUser.email,
         mfaEnabled: sourceUser.twoFactorAuthentication,

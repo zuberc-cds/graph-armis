@@ -15,8 +15,6 @@ import {
 } from '../constants';
 import { createAccountUserRelationship, createUserEntity } from './converter';
 
-export const SITE_ENTITY_KEY = 'entity:site';
-
 export async function fetchUsers({
   instance,
   jobState,
