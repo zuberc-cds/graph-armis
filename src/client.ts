@@ -153,15 +153,15 @@ export class APIClient {
   public async iterateSites(
     iteratee: ResourceIteratee<ArmisSite>,
   ): Promise<void> {
-    const path = '/api/v1/sites/?';
+    const path = '/api/v1/sites/?length=100';
     this.logger.info(path);
     const request = new Promise<void>((resolve, reject) => {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
-          path: '/api/v1/sites/?length=100',
+          path,
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -223,7 +223,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {
@@ -285,7 +285,7 @@ export class APIClient {
       const resultsV: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {
@@ -346,7 +346,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {
@@ -407,7 +407,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {

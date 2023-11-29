@@ -12,7 +12,6 @@ import {
   Steps,
   Relationships,
   ARMIS_ACCOUNT_ENTITY_KEY,
-  ARMIS_DEVICE_ENTITY_KEY,
   ARMIS_SITE_ENTITY_KEY,
 } from '../constants';
 import {
