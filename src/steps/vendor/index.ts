@@ -1,16 +1,10 @@
 import {
-  Entity,
   IntegrationStep,
   IntegrationStepExecutionContext,
 } from '@jupiterone/integration-sdk-core';
 
 import { IntegrationConfig } from '../../config';
-import {
-  Entities,
-  Steps,
-  Relationships,
-  ARMIS_VENDOR_ENTITY_KEY,
-} from '../constants';
+import { Entities, Steps, ARMIS_VENDOR_ENTITY_KEY } from '../constants';
 import { createVendorEntity } from './converter';
 
 export const SITE_ENTITY_KEY = 'entity:site';
