@@ -5,6 +5,11 @@ import {
 
 import { Entities } from '../constants';
 
+/**
+ * Creates a new Vendor Entity.
+ *
+ * @return {Entity} The newly created Vendor Entity.
+ */
 export function createVendorEntity(): Entity {
   return createIntegrationEntity({
     entityData: {
