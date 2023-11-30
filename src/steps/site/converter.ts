@@ -22,9 +22,12 @@ export function createSiteEntity(sourceSite: ArmisSite): Entity {
       assign: {
         _type: Entities.SITE._type,
         _class: Entities.SITE._class,
-        _key: sourceSite.name + '-' + sourceSite.id.toString(),
+        _key: 'armis-site-' + sourceSite.id.toString(),
         id: sourceSite.id.toString(),
         location: sourceSite.location,
+        name: sourceSite.name,
+        networkEquipmentDeviceIds: sourceSite.networkEquipmentDeviceIds,
+        displayName: sourceSite.name || sourceSite.id.toString(),
       },
     },
   });
@@ -99,5 +102,16 @@ export function createAccountSiteRelationship(
     _class: RelationshipClass.HAS,
     from: account,
     to: site,
+  });
+}
+
+export function createSiteDeviceRelationship(
+  site: Entity,
+  device: Entity,
+): Relationship {
+  return createDirectRelationship({
+    _class: RelationshipClass.HAS,
+    from: site,
+    to: device,
   });
 }

@@ -1,5 +1,6 @@
 import { RelationshipClass, StepSpec } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../../../src/config';
+import { Steps } from '../../../../src/steps/constants';
 
 export const deviceSpec: StepSpec<IntegrationConfig>[] = [
   {
@@ -24,7 +25,7 @@ export const deviceSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'armis_device',
       },
     ],
-    dependsOn: ['fetch-account'],
+    dependsOn: [Steps.ACCOUNT, Steps.SITES],
     implemented: true,
   },
 ];

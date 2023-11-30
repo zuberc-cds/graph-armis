@@ -21,6 +21,9 @@ export interface ArmisDevice {
   operatingSystem: string;
   operatingSystemVersion: string;
   lastSeen: string;
+  site: {
+    name: string;
+  };
 }
 
 export interface ArmisSite {
@@ -30,6 +33,26 @@ export interface ArmisSite {
   location: string;
   name: string;
   parentId: string;
+  networkEquipmentDeviceIds: string[];
+}
+
+export interface ArmisUser {
+  id: number;
+  email: string;
+  isActive: boolean;
+  lastLoginTime: string;
+  location: string;
+  name: string;
+  phone: number;
+  reportPermissions: string;
+  role: string;
+  roleAssignment: {
+    name: string[];
+    sites: string[];
+  }[];
+  title: string;
+  twoFactorAuthentication: boolean;
+  username: string;
 }
 
 export interface ArmisAlert extends ArmisFinding {
