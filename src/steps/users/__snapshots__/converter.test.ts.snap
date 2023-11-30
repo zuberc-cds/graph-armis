@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createUserEntity should convert to user entity 1`] = `
+Object {
+  "_class": Array [
+    "User",
+  ],
+  "_key": "armis-user-1",
+  "_rawData": Array [
+    Object {
+      "name": "default",
+      "rawData": Object {
+        "email": "test@gmail.com",
+        "id": 1,
+        "isActive": true,
+        "lastLoginTime": "22/02/2020",
+        "location": "USA",
+        "name": "Test",
+        "phone": 9876543210,
+        "reportPermissions": "",
+        "role": "admin",
+        "roleAssignment": Array [
+          Object {
+            "name": Array [
+              "read",
+            ],
+            "sites": Array [
+              "crest",
+            ],
+          },
+        ],
+        "title": "test",
+        "twoFactorAuthentication": true,
+        "username": "dummy-user",
+      },
+    },
+  ],
+  "_type": "armis_user",
+  "active": true,
+  "createdOn": undefined,
+  "displayName": "Test",
+  "email": "test@gmail.com",
+  "id": "1",
+  "location": "USA",
+  "mfaEnabled": true,
+  "name": "Test",
+  "username": "dummy-user",
+}
+`;
