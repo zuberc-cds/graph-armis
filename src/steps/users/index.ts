@@ -41,9 +41,7 @@ export async function fetchUsers({
     return;
   }
 
-  logger.info('----fetch user----1');
   await apiClient.iterateUsers(async (user) => {
-    logger.info('----fetch user----1');
     const userEntity = createUserEntity(user);
     const personEntity = createPersonEntity(user);
     const accessRoleEntity = createAccessRoleEntity(user);
