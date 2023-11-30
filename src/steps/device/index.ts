@@ -1,8 +1,4 @@
-import {
-  Entity,
-  IntegrationStep,
-  IntegrationStepExecutionContext,
-} from '@jupiterone/integration-sdk-core';
+import { IntegrationStep } from '@jupiterone/integration-sdk-core';
 
 import { createAPIClient } from '../../client';
 import { IntegrationConfig } from '../../config';
