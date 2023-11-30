@@ -10,7 +10,6 @@ import { Entities } from '../constants';
 import { AcmeGroup, AcmeUser, ArmisDevice } from '../../types';
 
 export function createDeviceEntity(sourceDevice: ArmisDevice): Entity {
-  /* eslint-disable no-console */
   return createIntegrationEntity({
     entityData: {
       source: sourceDevice,

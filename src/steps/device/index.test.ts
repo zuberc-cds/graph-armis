@@ -4,13 +4,13 @@ import { Recording, setupProjectRecording } from '../../../test/recording';
 import { Steps } from '../constants';
 
 // See test/README.md for details
-/*describe('fetchDevices', () => {
+describe('fetchDevices', () => {
   let recording: Recording;
   afterEach(async () => {
     await recording.stop();
   });
 
-  /*test('fetch-devices', async () => {
+  test.skip('fetch-devices', async () => {
     recording = setupProjectRecording({
       directory: __dirname,
       name: 'fetch-devices',
@@ -20,4 +20,4 @@ import { Steps } from '../constants';
     const stepResult = await executeStepWithDependencies(stepConfig);
     expect(stepResult).toMatchStepMetadata(stepConfig);
   });
-});*/
+});

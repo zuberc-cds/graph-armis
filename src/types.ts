@@ -32,7 +32,7 @@ export interface ArmisSite {
   lng: number;
   location: string;
   name: string;
-  parentId: string;
+  parentId?: string;
   networkEquipmentDeviceIds: string[];
 }
 
@@ -55,7 +55,10 @@ export interface ArmisUser {
   username: string;
 }
 
-export interface ArmisAlert extends ArmisFinding {
+export interface ArmisAlert {
+  description: string;
+  severity: string;
+  status: string;
   alertId: number;
   title: string;
   classification: string;
@@ -67,6 +70,7 @@ export interface ArmisAlert extends ArmisFinding {
 }
 
 export interface ArmisVulnerability extends ArmisFinding {
+  id: string;
   cveUid: string;
   affectedDevicesCount: number;
   attackComplexity: string;
@@ -80,8 +84,8 @@ export interface ArmisVulnerability extends ArmisFinding {
   integrityImpact: string;
   publishedDate: string;
   score: number;
-  commonName: string;
-  threatTags: string[];
+  commonName: string | null;
+  threatTags: string[] | null;
 }
 
 export interface ArmisFinding {

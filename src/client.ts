@@ -153,15 +153,15 @@ export class APIClient {
   public async iterateSites(
     iteratee: ResourceIteratee<ArmisSite>,
   ): Promise<void> {
-    const path = '/api/v1/sites/?length=100';
+    const path = '/api/v1/sites/?';
     this.logger.info(path);
     const request = new Promise<void>((resolve, reject) => {
       const results: any = [];
       const req = https.request(
         {
-          hostname: this.config.host,
+          hostname: 'integration-crestdata.armis.com',
           port: 443,
-          path,
+          path: '/api/v1/sites/?',
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -223,7 +223,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: this.config.host,
+          hostname: 'integration-crestdata.armis.com',
           port: 443,
           path,
           headers: {
@@ -285,7 +285,7 @@ export class APIClient {
       const resultsV: any = [];
       const req = https.request(
         {
-          hostname: this.config.host,
+          hostname: 'integration-crestdata.armis.com',
           port: 443,
           path,
           headers: {
@@ -346,7 +346,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: this.config.host,
+          hostname: 'integration-crestdata.armis.com',
           port: 443,
           path,
           headers: {
@@ -398,6 +398,11 @@ export class APIClient {
     }
   }
 
+  /**
+   * Iterates each user resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
   public async iterateUsers(
     iteratee: ResourceIteratee<ArmisUser>,
   ): Promise<void> {

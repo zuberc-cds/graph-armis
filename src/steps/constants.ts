@@ -43,7 +43,7 @@ export const Entities: Record<
         model: { type: 'string' },
         manufacturer: { type: 'string' },
         lastSeen: { type: 'string' },
-        id: { type: 'string' },
+        //id: { type: 'string' },
         name: { type: 'string' },
         operatingSystem: { type: 'string' },
         operatingSystemVersion: { type: 'string' },

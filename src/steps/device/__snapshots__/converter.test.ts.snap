@@ -1,0 +1,42 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createDeviceEntity should convert to device entity 1`] = `
+Object {
+  "_class": Array [
+    "Device",
+  ],
+  "_key": "armis-device-2275",
+  "_rawData": Array [
+    Object {
+      "name": "default",
+      "rawData": Object {
+        "category": "Computers",
+        "id": 2275,
+        "lastSeen": "2023-11-03T17:00:42.069992+00:00",
+        "manufacturer": "Lenovo",
+        "model": "ThinkPad X1 Yoga 3rd Gen",
+        "name": "000000731194pc.corporate.acme.com",
+        "operatingSystem": "Windows",
+        "operatingSystemVersion": "10",
+        "site": Object {
+          "name": "Palo Alto Enterprise",
+        },
+        "type": "Laptops",
+      },
+    },
+  ],
+  "_type": "armis_device",
+  "category": "asset",
+  "createdOn": undefined,
+  "deviceId": "2275",
+  "displayName": "000000731194pc.corporate.acme.com",
+  "id": "armis-device-2275",
+  "lastSeen": "2023-11-03T17:00:42.069992+00:00",
+  "make": "Lenovo",
+  "model": "ThinkPad X1 Yoga 3rd Gen",
+  "name": "000000731194pc.corporate.acme.com",
+  "osName": "Windows",
+  "osVersion": "10",
+  "serial": "000000731194pc.corporate.acme.com",
+}
+`;
