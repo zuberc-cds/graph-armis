@@ -46,6 +46,23 @@ export function createPersonEntity(sourceUser: ArmisUser): Entity {
   });
 }
 
+export function createAccessRoleEntity(sourceUser: ArmisUser): Entity {
+  return createIntegrationEntity({
+    entityData: {
+      source: sourceUser,
+      assign: {
+        _type: Entities.ACCESS_ROLE._type,
+        _class: Entities.ACCESS_ROLE._class,
+        _key: 'armis-access-role-' + sourceUser.id.toString(),
+        id: sourceUser.id.toString(),
+        privilegeNames: sourceUser.roleAssignment
+          ? sourceUser.roleAssignment[0].name
+          : ['-'],
+      },
+    },
+  });
+}
+
 export function createAccountUserRelationship(
   account: Entity,
   user: Entity,
@@ -65,5 +82,16 @@ export function createUserPersonRelationship(
     _class: RelationshipClass.IS,
     from: user,
     to: person,
+  });
+}
+
+export function createUserAccessRoleRelationship(
+  user: Entity,
+  accessRole: Entity,
+): Relationship {
+  return createDirectRelationship({
+    _class: RelationshipClass.ASSIGNED,
+    from: user,
+    to: accessRole,
   });
 }

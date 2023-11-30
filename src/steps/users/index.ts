@@ -12,10 +12,14 @@ import {
   ARMIS_ACCOUNT_ENTITY_KEY,
   ARMIS_USER_ENTITY_KEY,
   Relationships,
+  ARMIS_ACCESS_ROLE_ENTITY_KEY,
+  ARMIS_PERSON_ENTITY_KEY,
 } from '../constants';
 import {
+  createAccessRoleEntity,
   createAccountUserRelationship,
   createPersonEntity,
+  createUserAccessRoleRelationship,
   createUserEntity,
   createUserPersonRelationship,
 } from './converter';
@@ -40,14 +44,24 @@ export async function fetchUsers({
   await apiClient.iterateUsers(async (user) => {
     const userEntity = createUserEntity(user);
     const personEntity = createPersonEntity(user);
+    const accessRoleEntity = createAccessRoleEntity(user);
+
     await jobState.addEntity(userEntity);
     await jobState.addEntity(personEntity);
+    await jobState.addEntity(accessRoleEntity);
+
     await jobState.setData(ARMIS_USER_ENTITY_KEY, userEntity);
+    await jobState.setData(ARMIS_PERSON_ENTITY_KEY, personEntity);
+    await jobState.setData(ARMIS_ACCESS_ROLE_ENTITY_KEY, accessRoleEntity);
+
     await jobState.addRelationship(
       createAccountUserRelationship(accountEntity, userEntity),
     );
     await jobState.addRelationship(
       createUserPersonRelationship(userEntity, personEntity),
+    );
+    await jobState.addRelationship(
+      createUserAccessRoleRelationship(userEntity, accessRoleEntity),
     );
   });
 }

@@ -25,6 +25,7 @@ export const Entities: Record<
   | 'GROUP'
   | 'USER'
   | 'PERSON'
+  | 'ACCESS_ROLE'
   | 'DEVICE'
   | 'SITE'
   | 'FINDING'
@@ -240,6 +241,23 @@ export const Entities: Record<
       ],
     },
   },
+  ACCESS_ROLE: {
+    resourceName: 'AccessRole',
+    _type: 'armis_access_role',
+    _class: ['AccessRole'],
+    schema: {
+      properties: {
+        id: { type: 'number' },
+        roleAssignment: [
+          {
+            name: [{ type: 'string' }],
+            sites: [{ type: 'string' }],
+          },
+        ],
+      },
+      required: ['id', 'roleAssignment'],
+    },
+  },
 };
 
 export const Relationships: Record<
@@ -328,4 +346,6 @@ export const ARMIS_ACCOUNT_ENTITY_KEY = Entities.ACCOUNT._type;
 export const ARMIS_DEVICE_ENTITY_KEY = Entities.DEVICE._type;
 export const ARMIS_SITE_ENTITY_KEY = Entities.SITE._type;
 export const ARMIS_USER_ENTITY_KEY = Entities.USER._type;
+export const ARMIS_PERSON_ENTITY_KEY = Entities.PERSON._type;
+export const ARMIS_ACCESS_ROLE_ENTITY_KEY = Entities.ACCESS_ROLE._type;
 export const ARMIS_VENDOR_ENTITY_KEY = Entities.VENDOR._type;
