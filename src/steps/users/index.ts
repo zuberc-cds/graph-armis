@@ -41,7 +41,9 @@ export async function fetchUsers({
     return;
   }
 
+  logger.info('----fetch user----1');
   await apiClient.iterateUsers(async (user) => {
+    logger.info('----fetch user----1');
     const userEntity = createUserEntity(user);
     const personEntity = createPersonEntity(user);
     const accessRoleEntity = createAccessRoleEntity(user);
@@ -74,6 +76,7 @@ export const userSteps: IntegrationStep<IntegrationConfig>[] = [
     relationships: [
       Relationships.ACCOUNT_HAS_USER,
       Relationships.USER_IS_PERSON,
+      Relationships.USER_ASSIGNE_ACCESS_ROLE,
     ],
     executionHandler: fetchUsers,
     dependsOn: [Steps.ACCOUNT],
