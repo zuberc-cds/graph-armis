@@ -56,7 +56,7 @@ export function createAccessRoleEntity(sourceUser: ArmisUser): Entity {
         _key: 'armis-access-role-' + sourceUser.id.toString(),
         id: sourceUser.id.toString(),
         privilegeNames: sourceUser.roleAssignment
-          ? sourceUser.roleAssignment[0].name
+          ? sourceUser.roleAssignment[0]?.name
           : ['-'],
       },
     },
