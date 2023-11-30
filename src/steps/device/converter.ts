@@ -16,7 +16,6 @@ import { AcmeGroup, AcmeUser, ArmisDevice } from '../../types';
  * @return {Entity} The created entity.
  */
 export function createDeviceEntity(sourceDevice: ArmisDevice): Entity {
-  /* eslint-disable no-console */
   return createIntegrationEntity({
     entityData: {
       source: sourceDevice,
@@ -75,7 +74,7 @@ export function createUserEntity(user: AcmeUser): Entity {
 /**
  * Creates a group entity based on the provided AcmeGroup object.
  *
- * @param {AcmeGroup} group - The AcmeGroup object used as the source for creating the entity.
+ * @param {AcmeGroup} - The AcmeGroup object used as the source for creating the entity.
  * @return {Entity} The created entity.
  */
 export function createGroupEntity(group: AcmeGroup): Entity {
