@@ -30,6 +30,12 @@ export const userSpec: StepSpec<IntegrationConfig>[] = [
         _class: RelationshipClass.IS,
         targetType: 'armis_person',
       },
+      {
+        _type: 'armis_user_assigned_access_role',
+        sourceType: 'armis_user',
+        _class: RelationshipClass.ASSIGNED,
+        targetType: 'armis_access_role',
+      },
     ],
     dependsOn: [Steps.ACCOUNT],
     implemented: true,

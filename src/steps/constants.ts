@@ -270,6 +270,7 @@ export const Relationships: Record<
   | 'DEVICE_HAS_FINDING'
   | 'SITE_HAS_DEVICES'
   | 'USER_IS_PERSON'
+  | 'USER_ASSIGNE_ACCESS_ROLE'
   | 'VENDOR_HOSTS_ACCOUNT'
   | 'FINDING_VULNERABILITY_IS_VULNERABILITY',
   StepRelationshipMetadata
@@ -285,6 +286,12 @@ export const Relationships: Record<
     sourceType: Entities.USER._type,
     _class: RelationshipClass.IS,
     targetType: Entities.PERSON._type,
+  },
+  USER_ASSIGNE_ACCESS_ROLE: {
+    _type: 'armis_user_assigned_access_role',
+    sourceType: Entities.USER._type,
+    _class: RelationshipClass.ASSIGNED,
+    targetType: Entities.ACCESS_ROLE._type,
   },
   ACCOUNT_HAS_GROUP: {
     _type: 'acme_account_has_group',

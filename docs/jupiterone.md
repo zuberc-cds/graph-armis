@@ -118,6 +118,7 @@ The following relationships are created:
 | `armis_device`        | **HAS**               | `armis_finding`       |
 | `armis_device`        | **HAS**               | `armis_finding_alert` |
 | `armis_finding`       | **IS**                | `armis_vulnerability` |
+| `armis_user`          | **ASSIGNED**          | `armis_access_role`   |
 | `armis_user`          | **IS**                | `armis_person`        |
 | `armis_vendor`        | **HOSTS**             | `armis_account`       |
 
