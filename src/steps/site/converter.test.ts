@@ -9,6 +9,7 @@ describe('#createSiteEntity', () => {
       lng: -95.712891,
       location: 'USA',
       name: 'USA Health',
+      networkEquipmentDeviceIds: [],
     };
     expect(createSiteEntity(siteEntity)).toMatchSnapshot();
   });

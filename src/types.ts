@@ -32,7 +32,7 @@ export interface ArmisSite {
   lng: number;
   location: string;
   name: string;
-  parentId: string;
+  parentId?: string;
   networkEquipmentDeviceIds: string[];
 }
 

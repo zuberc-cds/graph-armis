@@ -1,20 +1,21 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`#createSiteEntity should convert to site entity 1`] = `
-{
-  "_class": [
+Object {
+  "_class": Array [
     "Site",
   ],
   "_key": "armis-site-1",
-  "_rawData": [
-    {
+  "_rawData": Array [
+    Object {
       "name": "default",
-      "rawData": {
+      "rawData": Object {
         "id": 1,
         "lat": 37.09024,
         "lng": -95.712891,
         "location": "USA",
         "name": "USA Health",
+        "networkEquipmentDeviceIds": Array [],
       },
     },
   ],
@@ -24,6 +25,6 @@ exports[`#createSiteEntity should convert to site entity 1`] = `
   "id": "1",
   "location": "USA",
   "name": "USA Health",
-  "networkEquipmentDeviceIds": undefined,
+  "networkEquipmentDeviceIds": Array [],
 }
 `;
