@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createSiteEntity should convert to site entity 1`] = `
+{
+  "_class": [
+    "Site",
+  ],
+  "_key": "armis-site-1",
+  "_rawData": [
+    {
+      "name": "default",
+      "rawData": {
+        "id": 1,
+        "lat": 37.09024,
+        "lng": -95.712891,
+        "location": "USA",
+        "name": "USA Health",
+      },
+    },
+  ],
+  "_type": "armis_site",
+  "createdOn": undefined,
+  "displayName": "USA Health",
+  "id": "1",
+  "location": "USA",
+  "name": "USA Health",
+  "networkEquipmentDeviceIds": undefined,
+}
+`;

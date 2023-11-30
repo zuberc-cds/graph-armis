@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createAccountEntity should convert to account entity 1`] = `
+{
+  "_class": [
+    "Account",
+  ],
+  "_key": "armis-account-1",
+  "_rawData": [
+    {
+      "name": "default",
+      "rawData": {
+        "id": "armis-account-1",
+        "name": "Example Co. Armis Account",
+      },
+    },
+  ],
+  "_type": "armis_account",
+  "createdOn": undefined,
+  "displayName": "Example Co. Armis Account",
+  "id": "armis-account-1",
+  "name": "Example Co. Armis Account",
+}
+`;

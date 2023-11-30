@@ -1,0 +1,102 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createAlertFindingEntity should convert to alert entity 1`] = `
+{
+  "_class": [
+    "Finding",
+  ],
+  "_key": "armis-alert-219",
+  "_rawData": [
+    {
+      "name": "default",
+      "rawData": {
+        "alertId": 219,
+        "classification": "Security - Other",
+        "description": "When data is sent encrypted on the network, it dramatically reduces the impact of that data being intercepted by someone that should not have it. Not all data needs to be encrypted, especially when that data is traversing an internal network. Unencrypted protocols can be potentially intercepted resulting in sensitive company information being stolen.",
+        "deviceIds": [
+          133,
+        ],
+        "policyId": 110807,
+        "policyTitle": "[Risk] Unencrypted Traffic in Use",
+        "severity": "Medium",
+        "status": "Unhandled",
+        "time": "2023-11-26T19:06:58.601691+00:00",
+        "title": "[Risk] Unencrypted Traffic in Use",
+        "type": "System Policy Violation",
+      },
+    },
+  ],
+  "_type": "armis_finding_alert",
+  "active": undefined,
+  "category": "System Policy Violation",
+  "classification": "Security - Other",
+  "createdOn": undefined,
+  "description": "When data is sent encrypted on the network, it dramatically reduces the impact of that data being intercepted by someone that should not have it. Not all data needs to be encrypted, especially when that data is traversing an internal network. Unencrypted protocols can be potentially intercepted resulting in sensitive company information being stolen.",
+  "displayName": "[Risk] Unencrypted Traffic in Use",
+  "name": "[Risk] Unencrypted Traffic in Use",
+  "numericSeverity": 1,
+  "open": false,
+  "policyId": 110807,
+  "policyTitle": "[Risk] Unencrypted Traffic in Use",
+  "reportedOn": 1701025618601,
+  "severity": "Medium",
+  "status": "Unhandled",
+}
+`;
+
+exports[`#createAlertFindingEntity should convert to vulnerability entity 1`] = `
+{
+  "_class": [
+    "Vulnerability",
+  ],
+  "_key": "armis-vulnerability-CVE-2022-32845",
+  "_rawData": [
+    {
+      "name": "default",
+      "rawData": {
+        "affectedDevicesCount": 3,
+        "attackComplexity": "Low",
+        "attackVector": "Network",
+        "availabilityImpact": "High",
+        "commonName": null,
+        "cveUid": "CVE-2022-32845",
+        "cvssScore": 10,
+        "description": "This issue was addressed with improved checks. This issue is fixed in watchOS 8.7, iOS 15.6 and iPadOS 15.6, macOS Monterey 12.5. An app may be able to break out of its sandbox.",
+        "epssPercentile": 0.53,
+        "epssScore": 0.00166,
+        "exploitabilityScore": 3.9,
+        "id": "CVE-2022-32845",
+        "impactScore": 6,
+        "integrityImpact": "High",
+        "publishedDate": "2022-09-23T19:15:00+00:00",
+        "score": 10,
+        "severity": "Critical",
+        "status": "Open",
+        "threatTags": null,
+      },
+    },
+  ],
+  "_type": "armis_vulnerability",
+  "active": undefined,
+  "blocking": false,
+  "category": "Network",
+  "createdOn": undefined,
+  "description": "This issue was addressed with improved checks. This issue is fixed in watchOS 8.7, iOS 15.6 and iPadOS 15.6, macOS Monterey 12.5. An app may be able to break out of its sandbox.",
+  "displayName": "armis-vulnerability-CVE-2022-32845",
+  "exploitability": 3.9,
+  "impact": 6,
+  "impacts": [
+    "devices",
+  ],
+  "name": "armis-vulnerability-CVE-2022-32845",
+  "numericSeverity": 3,
+  "open": true,
+  "production": true,
+  "public": false,
+  "reportedOn": 1663960500000,
+  "score": 10,
+  "severity": "Critical",
+  "status": "Open",
+  "vector": "Network",
+}
+`;

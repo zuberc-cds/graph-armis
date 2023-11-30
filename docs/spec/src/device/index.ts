@@ -5,7 +5,7 @@ import { Steps } from '../../../../src/steps/constants';
 export const deviceSpec: StepSpec<IntegrationConfig>[] = [
   {
     /**
-     * ENDPOINT: https://api.provider.com/api/v1/devices
+     * ENDPOINT: https://mydomain.armis.com/api/v1/search
      * PATTERN: Fetch Entities
      */
     id: 'fetch-devices',

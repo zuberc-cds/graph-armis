@@ -4,7 +4,7 @@ import { IntegrationConfig } from '../../../../src/config';
 export const accountSpec: StepSpec<IntegrationConfig>[] = [
   {
     /**
-     * ENDPOINT: https://api.provider.com/api/v1/accounts
+     * ENDPOINT: n/a
      * PATTERN: Fetch Entities
      */
     id: 'fetch-account',

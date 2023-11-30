@@ -67,6 +67,7 @@ export interface ArmisAlert extends ArmisFinding {
 }
 
 export interface ArmisVulnerability extends ArmisFinding {
+  id: string;
   cveUid: string;
   affectedDevicesCount: number;
   attackComplexity: string;
@@ -80,12 +81,11 @@ export interface ArmisVulnerability extends ArmisFinding {
   integrityImpact: string;
   publishedDate: string;
   score: number;
-  commonName: string;
-  threatTags: string[];
+  commonName: string | null;
+  threatTags: string[] | null;
 }
 
 export interface ArmisFinding {
-  id: string;
   description: string;
   severity: string;
   status: string;
