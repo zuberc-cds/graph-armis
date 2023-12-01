@@ -27,38 +27,6 @@ export function createSiteEntity(sourceSite: ArmisSite): Entity {
   });
 }
 
-export function createAccountUserRelationship(
-  account: Entity,
-  user: Entity,
-): Relationship {
-  return createDirectRelationship({
-    _class: RelationshipClass.HAS,
-    from: account,
-    to: user,
-  });
-}
-export function createAccountGroupRelationship(
-  account: Entity,
-  group: Entity,
-): Relationship {
-  return createDirectRelationship({
-    _class: RelationshipClass.HAS,
-    from: account,
-    to: group,
-  });
-}
-
-export function createGroupUserRelationship(
-  group: Entity,
-  user: Entity,
-): Relationship {
-  return createDirectRelationship({
-    _class: RelationshipClass.HAS,
-    from: group,
-    to: user,
-  });
-}
-
 export function createAccountSiteRelationship(
   account: Entity,
   site: Entity,
