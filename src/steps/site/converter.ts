@@ -9,6 +9,12 @@ import {
 import { Entities } from '../constants';
 import { ArmisSite } from '../../types';
 
+/**
+ * Creates a site entity based on the provided source site.
+ *
+ * @param {ArmisSite} sourceSite - The source site to create the entity from.
+ * @return {Entity} The created site entity.
+ */
 export function createSiteEntity(sourceSite: ArmisSite): Entity {
   return createIntegrationEntity({
     entityData: {

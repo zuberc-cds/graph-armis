@@ -19,29 +19,50 @@ import { ArmisAlert /*ArmisDevice, ArmisFinding*/ } from '../../types';
 
 export const DEVICE_ENTITY_KEY = 'entity:device';
 
+/**
+ * Fetches findings from the API and adds them to the job state.
+ * @param instance - The integration instance.
+ * @param jobState - The job state.
+ * @param logger - The logger.
+ */
 export async function fetchFindings({
   instance,
   jobState,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
+  // Log that alerts are being fetched
   logger.info('Fetching Alerts');
+
+  // Create an API client using the integration config and logger
   const apiClient = createAPIClient(instance.config, logger);
+
+  // Verify authentication with the API client
   await apiClient.verifyAuthentication();
 
+  // Iterate through each alert and add it to the job state
   await apiClient.iterateAlerts(async (alert) => {
     await jobState.addEntity(createAlertFindingEntity(alert));
   });
 }
 
+/**
+ * Builds relationships between finding alert entities and device entities.
+ *
+ * @param jobState - The job state.
+ * @param logger - The logger.
+ */
 export async function buildFindingAlertDeviceRelationships({
   jobState,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
+  // Iterate through each finding alert entity
   await jobState.iterateEntities(
     { _type: Entities.FINDING_ALERT._type },
     async (findingAlertEntity) => {
+      // Get the raw data of the finding alert entity
       const alert = getRawData<ArmisAlert>(findingAlertEntity);
 
+      // If the raw data is not available, log a warning and continue to the next entity
       if (!alert) {
         logger.warn(
           { _key: findingAlertEntity._key },
@@ -50,16 +71,14 @@ export async function buildFindingAlertDeviceRelationships({
         return;
       }
 
+      // Iterate through each device ID in the alert's deviceIds array
       for (const deviceId of alert.deviceIds || []) {
+        // Find the device entity with the corresponding device ID
         const deviceEntity = await jobState.findEntity(
           'armis-device-' + deviceId,
         );
 
-        // if (!deviceEntity) {
-        //   throw new IntegrationMissingKeyError(
-        //     `Expected device with key to exist (key=${deviceId})`,
-        //   );
-        // }
+        // If the device entity exists, add a relationship between the device and the finding alert
         if (deviceEntity) {
           await jobState.addRelationship(
             createDeviceFindingRelationship(deviceEntity, findingAlertEntity),
@@ -70,50 +89,76 @@ export async function buildFindingAlertDeviceRelationships({
   );
 }
 
+/**
+ * Fetches vulnerabilities from the API and adds them to the job state.
+ *
+ * @param instance - The integration instance.
+ * @param jobState - The job state.
+ * @param logger - The logger.
+ */
 export async function fetchVulnerabilities({
   instance,
   jobState,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
+  // Log that vulnerabilities are being fetched
   logger.info('Fetching Vulnerabilities');
+
+  // Create an API client using the integration config and logger
   const apiClient = createAPIClient(instance.config, logger);
+
+  // Verify authentication with the API client
   await apiClient.verifyAuthentication();
 
-  await apiClient.iterateVulnerabilities(async (vul) => {
-    const vulnerability = await jobState.addEntity(
-      createVulnerabilityFindingEntity(vul),
+  // Iterate through each vulnerability and add it to the job state
+  await apiClient.iterateVulnerabilities(async (vulnerability) => {
+    // Add the vulnerability entity to the job state
+    const vulnerabilityEntity = await jobState.addEntity(
+      createVulnerabilityFindingEntity(vulnerability),
     );
-    const finding = await jobState.addEntity(createFindingEntity(vul));
+
+    // Add the finding entity to the job state
+    const findingEntity = await jobState.addEntity(
+      createFindingEntity(vulnerability),
+    );
+
+    // Add a relationship between the finding and vulnerability entities
     await jobState.addRelationship(
-      createFindingVulnerabilityRelationship(finding, vulnerability),
+      createFindingVulnerabilityRelationship(
+        findingEntity,
+        vulnerabilityEntity,
+      ),
     );
   });
 }
 
-export async function buildFindingDeviceRelationships({
-  instance,
-  jobState,
-  logger,
-}: IntegrationStepExecutionContext<IntegrationConfig>) {
-  const apiClient = createAPIClient(instance.config, logger);
+/**
+ * Builds relationships between devices and findings.
+ *
+ * @param {IntegrationStepExecutionContext<IntegrationConfig>} context - The execution context.
+ */
+export async function buildFindingDeviceRelationships(context) {
+  const apiClient = createAPIClient(context.instance.config, context.logger);
+
+  // Verify authentication with the API client
   await apiClient.verifyAuthentication();
-  await jobState.iterateEntities(
+
+  // Iterate over each device entity
+  await context.jobState.iterateEntities(
     { _type: Entities.DEVICE._type },
     async (deviceEntity) => {
+      // Iterate over each vulnerability of the device
       await apiClient.iterateDeviceVulnerabilities(
         deviceEntity._key.replace('armis-device-', ''),
         async (vul) => {
-          const vulEntity = await jobState.findEntity(
+          const vulEntity = await context.jobState.findEntity(
             'armis-finding-' + vul.cveUid,
           );
 
-          // if (!deviceEntity) {
-          //   throw new IntegrationMissingKeyError(
-          //     `Expected device with key to exist (key=${deviceId})`,
-          //   );
-          // }
+          // Check if the vulnerability entity exists
           if (vulEntity) {
-            await jobState.addRelationship(
+            // Add a relationship between the device and the finding
+            await context.jobState.addRelationship(
               createDeviceFindingRelationship(deviceEntity, vulEntity),
             );
           }
