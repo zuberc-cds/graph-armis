@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`#createVendorEntity should convert to vendor entity 1`] = `
+Object {
+  "_class": Array [
+    "Vendor",
+  ],
+  "_key": "armis-vendor",
+  "_rawData": Array [
+    Object {
+      "name": "default",
+      "rawData": Object {
+        "category": Array [
+          "security",
+        ],
+        "id": "armis-vendor",
+        "name": "Armis",
+      },
+    },
+  ],
+  "_type": "armis_vendor",
+  "category": Array [
+    "security",
+  ],
+  "createdOn": undefined,
+  "displayName": "Armis",
+  "id": "armis-vendor",
+  "name": "Armis",
+}
+`;

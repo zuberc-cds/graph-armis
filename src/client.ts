@@ -159,9 +159,9 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
-          path: '/api/v1/sites/?',
+          path,
           headers: {
             'Content-Type': 'application/json',
             Authorization: this.authToken,
@@ -223,7 +223,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {
@@ -285,7 +285,7 @@ export class APIClient {
       const resultsV: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {
@@ -346,7 +346,7 @@ export class APIClient {
       const results: any = [];
       const req = https.request(
         {
-          hostname: 'integration-crestdata.armis.com',
+          hostname: this.config.host,
           port: 443,
           path,
           headers: {
