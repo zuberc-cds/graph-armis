@@ -141,12 +141,12 @@ export class APIClient {
         }
 
         if (attemptContext.aborted) {
-          console.log(
+          this.logger.info(
             { attemptContext, error, endpoint },
             'Hit an unrecoverable error from API Provider. Aborting.',
           );
         } else {
-          console.log(
+          this.logger.info(
             { attemptContext, error, endpoint },
             `Hit a possibly recoverable error from API Provider. Waiting before trying again.`,
           );
