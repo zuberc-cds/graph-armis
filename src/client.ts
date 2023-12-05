@@ -58,9 +58,11 @@ const ITEMS_PER_PAGE = 200;
 export class APIClient {
   authToken: string;
   logger: IntegrationLogger;
-  constructor() {}
+  BASE_URL = '';
 
-  private readonly BASE_URL = 'https://' + this.config.host;
+  constructor(public config: IntegrationConfig) {
+    this.BASE_URL = 'https://' + config.host;
+  }
 
   public setLogger(logger: IntegrationLogger) {
     this.logger = logger;
