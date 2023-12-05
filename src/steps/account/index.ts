@@ -49,7 +49,7 @@ export const accountSteps: IntegrationStep<IntegrationConfig>[] = [
     name: 'Fetch Account Details',
     entities: [Entities.ACCOUNT],
     relationships: [Relationships.VENDOR_HOSTS_ACCOUNT],
-    dependsOn: [Steps.VENDOR],
+    dependsOn: [],
     executionHandler: fetchAccountDetails,
   },
 ];

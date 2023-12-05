@@ -1,401 +1,250 @@
-import https from 'https';
-
+import fetch, { RequestInit, Response as NodeFetchResponse } from 'node-fetch';
+import { retry } from '@lifeomic/attempt';
 import {
   IntegrationLogger,
+  IntegrationError,
   IntegrationProviderAPIError,
   IntegrationProviderAuthenticationError,
+  IntegrationProviderAuthorizationError,
 } from '@jupiterone/integration-sdk-core';
-
 import { IntegrationConfig } from './config';
 import {
-  AcmeGroup,
-  ArmisDevice,
-  ArmisSite,
   ArmisAlert,
-  ArmisVulnerability,
+  ArmisDevice,
   ArmisDeviceVulnerability,
+  ArmisSite,
   ArmisUser,
+  ArmisVulnerability,
 } from './types';
 
 export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
-/**
- * An APIClient maintains authentication state and provides an interface to
- * third party data APIs.
- *
- * It is recommended that integrations wrap provider data APIs to provide a
- * place to handle error responses and implement common patterns for iterating
- * resources.
- */
+type responseData = {
+  data: {
+    count: number;
+    next: number;
+    prev: number;
+    total: number;
+    results?: Array<any>;
+    sample?: Array<any>;
+    sites?: Array<any>;
+  };
+  success: boolean;
+};
+
+type userResponseData = {
+  data: {
+    users: Array<any>;
+  };
+  success: boolean;
+};
+
+export interface ProviderResponse<T> extends NodeFetchResponse {
+  json(): Promise<T>;
+  status: number;
+  statusText: string;
+  ok: boolean;
+}
+
+export enum Method {
+  GET = 'get',
+  POST = 'post',
+}
+
+const ITEMS_PER_PAGE = 200;
+
 export class APIClient {
   authToken: string;
-  constructor(
-    readonly config: IntegrationConfig,
-    readonly logger: IntegrationLogger,
-  ) {}
+  logger: IntegrationLogger;
+  constructor(readonly config: IntegrationConfig) {}
 
-  public async verifyAuthentication(): Promise<void> {
-    // TODO make the most light-weight request possible to validate
-    // authentication works with the provided credentials, throw an err if
-    // authentication fails
-    // TODO take key from config
-    const postData = JSON.stringify({
-      secret_key: this.config.apiKey,
-    });
-    const path = '/api/v1/access_token/';
-    const request = new Promise<void>((resolve, reject) => {
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path: path,
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data) => {
-              const res = JSON.parse(data);
-              if (!res.data.access_token) {
-                reject(new Error('Provider authentication failed'));
-              }
-              this.authToken = res.data.access_token;
-              resolve();
-            })
-            .on('error', () => {
-              reject(new Error('Provider authentication failed'));
-            });
-        },
-      );
-      req.write(postData);
-      req.end();
-    });
+  private readonly BASE_URL = 'https://' + this.config.host;
 
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAuthenticationError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
+  public setLogger(logger: IntegrationLogger) {
+    this.logger = logger;
   }
 
+  public setAuthToken(token: string) {
+    this.authToken = token;
+  }
+
+  public getAuthToken() {
+    return this.authToken;
+  }
+
+  private async request<T>(
+    endpoint: string,
+    method: Method,
+    body?: {},
+  ): Promise<ProviderResponse<T>> {
+    /* eslint-disable no-console */
+    const requestAttempt = async () => {
+      // Check rate limit status before each request
+      // await this.checkRateLimitStatus(); // Use j1-rate-limit snippet to generate this function
+      const requestOptions: RequestInit = {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: this.getAuthToken(),
+        },
+        port: 443,
+      };
+      if (body) {
+        requestOptions.body = JSON.stringify(body);
+      }
+
+      const absoluteURL = this.BASE_URL + endpoint;
+
+      const response: ProviderResponse<T> = (await fetch(
+        absoluteURL,
+        requestOptions,
+      )) as ProviderResponse<T>;
+      if (response.status === 401) {
+        await this.verifyAuthentication();
+        throw new RetryableError();
+      } else if (response.status === 403) {
+        throw new IntegrationProviderAuthorizationError({
+          endpoint,
+          status: response.status,
+          statusText: response.statusText,
+        });
+      } else if (!response.ok) {
+        throw new IntegrationProviderAPIError({
+          endpoint: absoluteURL,
+          status: response.status,
+          statusText: response.statusText,
+        });
+      } else if (response.status === 200) {
+        // Set a new rate limit status after each successful request
+        // this.setRateLimitStatus(response); // Use j1-rate-limit snippet to generate this function
+      }
+
+      return response;
+    };
+
+    return await retry(requestAttempt, {
+      // The maximum number of attempts or 0 if there is no limit on number of attempts.
+      maxAttempts: 3,
+      // The delay between each attempt in milliseconds. You can provide a factor to have the delay grow exponentially.
+      delay: 30_000,
+      // A timeout in milliseconds. If timeout is non-zero then a timer is set using setTimeout.
+      // If the timeout is triggered then future attempts will be aborted.
+      timeout: 180_000,
+      // The factor option is used to grow the delay exponentially.
+      // For example, a value of 2 will cause the delay to double each time
+      factor: 2,
+      handleError: (error, attemptContext) => {
+        if ([401, 403, 404].includes(error.status)) {
+          if (!error.retryable) {
+            attemptContext.abort();
+          }
+        }
+
+        if (attemptContext.aborted) {
+          console.log(
+            { attemptContext, error, endpoint },
+            'Hit an unrecoverable error from API Provider. Aborting.',
+          );
+        } else {
+          console.log(
+            { attemptContext, error, endpoint },
+            `Hit a possibly recoverable error from API Provider. Waiting before trying again.`,
+          );
+        }
+      },
+    });
+    /* eslint-enable no-console */
+  }
+
+  public async verifyAuthentication(): Promise<void | string> {
+    /* eslint-disable no-console */
+    const endpoint = '/api/v1/access_token/';
+
+    const response = await this.request(endpoint, Method.POST, {
+      secret_key: this.config.apiKey,
+    });
+
+    const result: any = await response.json();
+
+    if (!result.data.access_token) {
+      throw new IntegrationProviderAuthenticationError({
+        cause: new Error('Invalid access token' + this.config.host),
+        endpoint: this.config.host + endpoint,
+        status: response.status,
+        statusText: response.statusText,
+      });
+    } else {
+      this.authToken = result.data.access_token;
+      return this.authToken;
+    }
+    /* eslint-enable no-console */
+  }
+
+  /**
+   * Iterates each device resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
   public async iterateDevices(
     iteratee: ResourceIteratee<ArmisDevice>,
   ): Promise<void> {
-    const path =
-      '/api/v1/search/?aql=' +
-      encodeURIComponent(
-        'in:devices timeFrame:"' + this.config.timeFrame + ' Days"',
-      ) +
-      '&from=0&length=200';
-    this.logger.info(path);
-    const request = new Promise<void>((resolve, reject) => {
-      const resultsD: any = [];
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path: path,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authToken,
-          },
-          method: 'GET',
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data) => {
-              resultsD.push(data);
-            })
-            .on('end', () => {
-              const res = JSON.parse(Buffer.concat(resultsD).toString());
-              try {
-                if (!('results' in res.data)) {
-                  this.logger.error('Devices not found');
-                }
-                for (const device of res.data.results) {
-                  void iteratee(device);
-                }
-                this.logger.info('Devices fetched successfully');
-                resolve();
-              } catch (err) {
-                this.logger.error(res);
-              }
-            })
-            .on('error', () => {
-              reject(new Error('Provider authentication failed'));
-            });
-        },
-      );
-      req.end();
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAPIError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
+    await sleep(10);
+    return await this.iterateEntities(
+      iteratee,
+      'devices',
+      this.getSearchEndpoint('in:devices'),
+    );
   }
 
-  public async iterateSites(
-    iteratee: ResourceIteratee<ArmisSite>,
-  ): Promise<void> {
-    const path = '/api/v1/sites/?';
-    this.logger.info(path);
-    const request = new Promise<void>((resolve, reject) => {
-      const results: any = [];
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authToken,
-          },
-          method: 'GET',
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data) => {
-              results.push(data);
-            })
-            .on('end', () => {
-              const res = JSON.parse(Buffer.concat(results).toString());
-              try {
-                if (!('sites' in res.data)) {
-                  this.logger.error('Sites not found');
-                }
-                for (const site of res.data.sites) {
-                  void iteratee(site);
-                }
-                this.logger.info('Sites fetched successfully');
-                resolve();
-              } catch (err) {
-                this.logger.error(res);
-              }
-            })
-            .on('error', () => {
-              reject(new Error('Provider authentication failed'));
-            });
-        },
-      );
-      req.end();
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAPIError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
-  }
-
+  /**
+   * Iterates each alert resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
   public async iterateAlerts(
     iteratee: ResourceIteratee<ArmisAlert>,
   ): Promise<void> {
-    const path =
-      '/api/v1/search/?aql=' +
-      encodeURIComponent(
-        'in:alerts timeFrame:"' + this.config.timeFrame + ' Days"',
-      ) +
-      '&from=0&length=200';
-    this.logger.info(path);
-    const request = new Promise<void>((resolve, reject) => {
-      const results: any = [];
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authToken,
-          },
-          method: 'GET',
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data: any) => {
-              results.push(data);
-            })
-            .on('end', () => {
-              const res = JSON.parse(Buffer.concat(results).toString());
-              try {
-                if (!('results' in res.data)) {
-                  this.logger.error('Alerts not found');
-                }
-                for (const alert of res.data.results) {
-                  void iteratee(alert);
-                }
-                this.logger.info('Alerts fetched successfully');
-                resolve(res);
-              } catch (err) {
-                this.logger.error(res);
-              }
-            })
-            .on('error', () => {
-              reject(new Error('Error while fetching alerts'));
-            });
-        },
-      );
-      req.end();
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAPIError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
+    await sleep(10);
+    return await this.iterateEntities(
+      iteratee,
+      'alerts',
+      this.getSearchEndpoint('in:alerts'),
+    );
   }
 
+  /**
+   * Iterates each vulnerability resource in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
   public async iterateVulnerabilities(
     iteratee: ResourceIteratee<ArmisVulnerability>,
   ): Promise<void> {
-    const path =
-      '/api/v1/search/?aql=' +
-      encodeURIComponent('in:vulnerabilities timeFrame:"23 Days"') +
-      '&from=0&length=200';
-    this.logger.info(path);
-    const request = new Promise<void>((resolve, reject) => {
-      const resultsV: any = [];
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authToken,
-          },
-          method: 'GET',
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data: any) => {
-              resultsV.push(data);
-            })
-            .on('end', () => {
-              const res = JSON.parse(Buffer.concat(resultsV).toString());
-              try {
-                if (!('results' in res.data)) {
-                  this.logger.error('Vulnerabilities not found');
-                }
-                for (const vulnerability of res.data.results) {
-                  void iteratee(vulnerability);
-                }
-                this.logger.info('Vulnerabilities fetched successfully');
-                resolve();
-              } catch (err) {
-                this.logger.error('===' + res + '====');
-              }
-            })
-            .on('error', () => {
-              reject(new Error('Error while fetching vulnerabilities'));
-            });
-        },
-      );
-      req.end();
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAPIError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
+    await sleep(10);
+    return await this.iterateEntities(
+      iteratee,
+      'vulnerabilities',
+      this.getSearchEndpoint('in:vulnerabilities'),
+    );
   }
 
+  /**
+   * Iterates each vulnerability resource in the provider.
+   *
+   * @param deviceId the id of the device
+   * @param iteratee receives each resource to produce entities/relationships
+   */
   public async iterateDeviceVulnerabilities(
     deviceId: string,
     iteratee: ResourceIteratee<ArmisDeviceVulnerability>,
   ): Promise<void> {
-    const path =
-      '/api/v1/vulnerability-match/?device_ids=' + encodeURIComponent(deviceId);
-    this.logger.info(path);
-    const request = new Promise<void>((resolve, reject) => {
-      const results: any = [];
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authToken,
-          },
-          method: 'GET',
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data: any) => {
-              results.push(data);
-            })
-            .on('end', () => {
-              const res = JSON.parse(Buffer.concat(results).toString());
-              try {
-                if (!('sample' in res.data)) {
-                  this.logger.error('Device vulnerability matches not found');
-                }
-                for (const vulnerability of res.data.sample) {
-                  void iteratee(vulnerability);
-                }
-                this.logger.info(
-                  'Device vulnerability matches fetched successfully',
-                );
-                resolve();
-              } catch (err) {
-                this.logger.error(res);
-              }
-            })
-            .on('error', () => {
-              reject(new Error('Error while fetching device vulnerabilities'));
-            });
-        },
-      );
-      req.end();
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      throw new IntegrationProviderAPIError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
-      });
-    }
+    await sleep(10);
+    return await this.iterateEntities(
+      iteratee,
+      'device vulnerabilities matches',
+      '/api/v1/vulnerability-match/?device_ids=' + encodeURIComponent(deviceId),
+      'sample',
+    );
   }
 
   /**
@@ -406,101 +255,99 @@ export class APIClient {
   public async iterateUsers(
     iteratee: ResourceIteratee<ArmisUser>,
   ): Promise<void> {
-    const path = '/api/v1/users/?length=10';
-    const request = new Promise<void>((resolve, reject) => {
-      this.logger.info(path);
-      const results: any = [];
-      const req = https.request(
-        {
-          hostname: this.config.host,
-          port: 443,
-          path,
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: this.authToken,
-          },
-          method: 'GET',
-        },
-        (res) => {
-          res.resume();
-          res
-            .on('data', (data) => {
-              results.push(data);
-            })
-            .on('end', () => {
-              const res = JSON.parse(Buffer.concat(results).toString());
-
-              try {
-                if (!('users' in res.data)) {
-                  this.logger.error('Users not found');
-                }
-                for (const user of res.data.users) {
-                  void iteratee(user);
-                }
-                this.logger.info('Users fetched successfully');
-                resolve(res);
-              } catch (err) {
-                this.logger.error(res);
-              }
-            })
-            .on('error', () => {
-              reject(new Error('Provider authentication failed'));
-            });
-        },
-      );
-      req.end();
-    });
-
-    try {
-      await request;
-    } catch (err) {
-      this.logger.error(err);
-      throw new IntegrationProviderAuthenticationError({
-        cause: err,
-        endpoint: this.config.apiHost + path,
-        status: err.status,
-        statusText: err.statusText,
+    await sleep(10);
+    const response: ProviderResponse<userResponseData> = await this.request(
+      '/api/v1/users/',
+      Method.GET,
+    );
+    const result: userResponseData = await response.json();
+    if (Array.isArray(result.data.users)) {
+      for (const entity of result.data.users) {
+        await iteratee(entity);
+      }
+      this.logger.info('users fetched successfully');
+    } else {
+      throw new IntegrationError({
+        code: 'UNEXPECTED_RESPONSE_DATA',
+        message: `Expected a collection of resources but type was ${typeof result}`,
       });
     }
   }
 
   /**
-   * Iterates each group resource in the provider.
+   * Iterates each site resource in the provider.
    *
    * @param iteratee receives each resource to produce entities/relationships
    */
-  public async iterateGroups(
-    iteratee: ResourceIteratee<AcmeGroup>,
+  public async iterateSites(
+    iteratee: ResourceIteratee<ArmisSite>,
   ): Promise<void> {
-    // TODO paginate an endpoint, invoke the iteratee with each record in the
-    // page
-    //
-    // The provider API will hopefully support pagination. Functions like this
-    // should maintain pagination state, and for each page, for each record in
-    // the page, invoke the `ResourceIteratee`. This will encourage a pattern
-    // where each resource is processed and dropped from memory.
+    await sleep(10);
+    return await this.iterateEntities(
+      iteratee,
+      'sites',
+      '/api/v1/sites/?',
+      'sites',
+    );
+  }
 
-    const groups: AcmeGroup[] = [
-      {
-        id: 'acme-group-1',
-        name: 'Group One',
-        users: [
-          {
-            id: 'acme-user-1',
-          },
-        ],
-      },
-    ];
+  /**
+   * Iterates each entity in the provider.
+   *
+   * @param iteratee receives each resource to produce entities/relationships
+   */
+  public async iterateEntities(
+    iteratee: ResourceIteratee<any>,
+    entity: string,
+    endpoint: string,
+    results_key: string = 'results',
+  ): Promise<void> {
+    let from = 0,
+      totalCount = 0;
 
-    for (const group of groups) {
-      await iteratee(group);
-    }
+    do {
+      const response: ProviderResponse<responseData> = await this.request(
+        `${endpoint}from=${from}&length=${ITEMS_PER_PAGE}`,
+        Method.GET,
+      );
+      const result: responseData = await response.json();
+
+      // Get total count via response
+      totalCount = result.data.total;
+
+      if (Array.isArray(result.data[results_key])) {
+        for (const entity of result.data[results_key]) {
+          await iteratee(entity);
+        }
+        this.logger.info(`${entity} fetched successfully`);
+      } else {
+        throw new IntegrationError({
+          code: 'UNEXPECTED_RESPONSE_DATA',
+          message: `Expected a collection of resources but type was ${typeof result}`,
+        });
+      }
+
+      // Increase current index
+      from = from + ITEMS_PER_PAGE;
+    } while (from <= totalCount);
+  }
+
+  private getSearchEndpoint(aql: string) {
+    return `/api/v1/search/?aql=${encodeURIComponent(
+      aql + ' timeFrame:"' + this.config.timeFrame + ' Days"',
+    )}&`;
   }
 }
 
 export function createAPIClient(
   config: IntegrationConfig,
-  logger: IntegrationLogger,
+  logger?: IntegrationLogger,
 ): APIClient {
-  return new APIClient(config, logger);
+  const apiClient = new APIClient(config);
+  if (logger) apiClient.setLogger(logger);
+  return apiClient;
+}
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+export class RetryableError extends Error {
+  retryable = true;
 }

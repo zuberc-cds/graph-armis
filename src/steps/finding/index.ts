@@ -23,21 +23,24 @@ export const DEVICE_ENTITY_KEY = 'entity:device';
  * Fetches findings from the API and adds them to the job state.
  * @param instance - The integration instance.
  * @param jobState - The job state.
+ * @param executionConfig - The loaded execution configuration.
  * @param logger - The logger.
  */
 export async function fetchFindings({
   instance,
   jobState,
+  executionConfig,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   // Log that alerts are being fetched
   logger.info('Fetching Alerts');
-
-  // Create an API client using the integration config and logger
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  const { authToken }: any = await executionConfig;
   const apiClient = createAPIClient(instance.config, logger);
-
-  // Verify authentication with the API client
-  await apiClient.verifyAuthentication();
+  if (!authToken) {
+    return;
+  }
+  apiClient.setAuthToken(authToken);
 
   // Iterate through each alert and add it to the job state
   await apiClient.iterateAlerts(async (alert) => {
@@ -94,21 +97,24 @@ export async function buildFindingAlertDeviceRelationships({
  *
  * @param instance - The integration instance.
  * @param jobState - The job state.
+ * @param executionConfig - The loaded execution configuration.
  * @param logger - The logger.
  */
 export async function fetchVulnerabilities({
   instance,
   jobState,
+  executionConfig,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   // Log that vulnerabilities are being fetched
   logger.info('Fetching Vulnerabilities');
-
-  // Create an API client using the integration config and logger
+  // eslint-disable-next-line @typescript-eslint/await-thenable
+  const { authToken }: any = await executionConfig;
   const apiClient = createAPIClient(instance.config, logger);
-
-  // Verify authentication with the API client
-  await apiClient.verifyAuthentication();
+  if (!authToken) {
+    return;
+  }
+  apiClient.setAuthToken(authToken);
 
   // Iterate through each vulnerability and add it to the job state
   await apiClient.iterateVulnerabilities(async (vulnerability) => {
@@ -131,34 +137,39 @@ export async function fetchVulnerabilities({
     );
   });
 }
-
 /**
  * Builds relationships between devices and findings.
  *
- * @param {IntegrationStepExecutionContext<IntegrationConfig>} context - The execution context.
+ * @param instance - The integration instance.
+ * @param jobState - The job state.
+ * @param logger - The logger.
  */
-export async function buildFindingDeviceRelationships(context) {
-  const apiClient = createAPIClient(context.instance.config, context.logger);
-
-  // Verify authentication with the API client
-  await apiClient.verifyAuthentication();
-
-  // Iterate over each device entity
-  await context.jobState.iterateEntities(
+export async function buildFindingDeviceRelationships({
+  instance,
+  jobState,
+  logger,
+}: IntegrationStepExecutionContext<IntegrationConfig>) {
+  const apiClient = createAPIClient(instance.config, logger);
+  const authToken = await apiClient.verifyAuthentication();
+  if (!authToken) {
+    return;
+  }
+  apiClient.setAuthToken(authToken);
+  await jobState.iterateEntities(
     { _type: Entities.DEVICE._type },
     async (deviceEntity) => {
       // Iterate over each vulnerability of the device
       await apiClient.iterateDeviceVulnerabilities(
         deviceEntity._key.replace('armis-device-', ''),
         async (vul) => {
-          const vulEntity = await context.jobState.findEntity(
+          const vulEntity = await jobState.findEntity(
             'armis-finding-' + vul.cveUid,
           );
 
           // Check if the vulnerability entity exists
           if (vulEntity) {
             // Add a relationship between the device and the finding
-            await context.jobState.addRelationship(
+            await jobState.addRelationship(
               createDeviceFindingRelationship(deviceEntity, vulEntity),
             );
           }
@@ -175,7 +186,7 @@ export const findingSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [Entities.FINDING_ALERT],
     relationships: [Relationships.DEVICE_HAS_FINDING_ALERT],
     executionHandler: fetchFindings,
-    dependsOn: [Steps.DEVICES, Steps.SITES],
+    dependsOn: [Steps.DEVICES],
   },
   {
     id: Steps.FINDING_ALERTS_DEVICE_RELATIONSHIPS,

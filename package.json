@@ -39,13 +39,16 @@
     "prepush": "yarn format:check && yarn lint && yarn type-check && jest --changedSince main",
     "postversion": "cp package.json ./dist/package.json"
   },
+  "dependencies": {
+    "node-fetch": "2"
+  },
   "peerDependencies": {
     "@jupiterone/integration-sdk-core": "^9.0.0"
   },
   "devDependencies": {
-    "@jupiterone/integration-sdk-core": "^9.0.0",
-    "@jupiterone/integration-sdk-dev-tools": "^9.0.0",
-    "@jupiterone/integration-sdk-testing": "^9.0.0",
+    "@jupiterone/integration-sdk-core": "^11.0.0",
+    "@jupiterone/integration-sdk-dev-tools": "^11.0.0",
+    "@jupiterone/integration-sdk-testing": "^11.0.0",
     "auto": "^10.36.5"
   },
   "auto": {
