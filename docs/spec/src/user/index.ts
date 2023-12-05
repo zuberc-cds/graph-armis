@@ -1,6 +1,5 @@
 import { RelationshipClass, StepSpec } from '@jupiterone/integration-sdk-core';
 import { IntegrationConfig } from '../../../../src/config';
-import { Steps } from '../../../../src/steps/constants';
 
 export const userSpec: StepSpec<IntegrationConfig>[] = [
   {
@@ -37,7 +36,7 @@ export const userSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'armis_access_role',
       },
     ],
-    dependsOn: [Steps.ACCOUNT],
+    dependsOn: ['build-site-devices-relationships'],
     implemented: true,
   },
 ];
