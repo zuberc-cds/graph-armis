@@ -30,8 +30,11 @@ export async function fetchUsers({
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
   const apiClient = createAPIClient(instance.config, logger);
-
-  await apiClient.verifyAuthentication();
+  const authToken = await apiClient.verifyAuthentication();
+  if (!authToken) {
+    return;
+  }
+  apiClient.setAuthToken(authToken);
 
   const accountEntity = await jobState.getData<Entity>(
     ARMIS_ACCOUNT_ENTITY_KEY,
@@ -70,13 +73,13 @@ export const userSteps: IntegrationStep<IntegrationConfig>[] = [
   {
     id: Steps.USERS,
     name: 'Fetch Users',
-    entities: [Entities.USER],
+    entities: [Entities.USER, Entities.ACCESS_ROLE, Entities.PERSON],
     relationships: [
       Relationships.ACCOUNT_HAS_USER,
       Relationships.USER_IS_PERSON,
       Relationships.USER_ASSIGNE_ACCESS_ROLE,
     ],
     executionHandler: fetchUsers,
-    dependsOn: [Steps.ACCOUNT],
+    dependsOn: [Steps.SITE_DEVICES_RELATIONSHIPS],
   },
 ];

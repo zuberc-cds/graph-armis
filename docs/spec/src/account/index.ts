@@ -24,7 +24,7 @@ export const accountSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'armis_account',
       },
     ],
-    dependsOn: ['fetch-vendor'],
+    dependsOn: [],
     implemented: true,
   },
 ];

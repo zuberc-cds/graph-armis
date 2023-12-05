@@ -24,7 +24,7 @@ export const findingAlertSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'armis_finding_alert',
       },
     ],
-    dependsOn: ['fetch-devices', 'fetch-sites'],
+    dependsOn: ['fetch-devices'],
     implemented: true,
   },
 ];

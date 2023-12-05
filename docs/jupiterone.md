@@ -97,10 +97,12 @@ The following entities are created:
 
 | Resources     | Entity `_type`        | Entity `_class` |
 | ------------- | --------------------- | --------------- |
+| AccessRole    | `armis_access_role`   | `AccessRole`    |
 | Account       | `armis_account`       | `Account`       |
 | Device        | `armis_device`        | `Device`        |
 | Finding       | `armis_finding`       | `Finding`       |
 | FindingAlert  | `armis_finding_alert` | `Finding`       |
+| Person        | `armis_person`        | `Person`        |
 | Site          | `armis_site`          | `Site`          |
 | User          | `armis_user`          | `User`          |
 | Vendor        | `armis_vendor`        | `Vendor`        |
@@ -112,9 +114,9 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
+| `armis_account`       | **MANAGES**           | `armis_device`        |
 | `armis_account`       | **HAS**               | `armis_site`          |
 | `armis_account`       | **HAS**               | `armis_user`          |
-| `armis_account`       | **MANAGES**           | `armis_device`        |
 | `armis_device`        | **HAS**               | `armis_finding`       |
 | `armis_device`        | **HAS**               | `armis_finding_alert` |
 | `armis_finding`       | **IS**                | `armis_vulnerability` |

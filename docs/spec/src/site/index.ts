@@ -24,7 +24,11 @@ export const siteSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'armis_site',
       },
     ],
-    dependsOn: ['fetch-account'],
+    dependsOn: [
+      'fetch-account',
+      'fetch-devices',
+      'build-finding-device-relationships',
+    ],
     implemented: true,
   },
 ];

@@ -31,11 +31,12 @@ export async function fetchSites({
   jobState,
   logger,
 }: IntegrationStepExecutionContext<IntegrationConfig>) {
-  // Create API client
   const apiClient = createAPIClient(instance.config, logger);
-
-  // Verify authentication
-  await apiClient.verifyAuthentication();
+  const authToken = await apiClient.verifyAuthentication();
+  if (!authToken) {
+    return;
+  }
+  apiClient.setAuthToken(authToken);
 
   // Get account entity from job state
   const accountEntity = await jobState.getData<Entity>(
@@ -104,7 +105,11 @@ export const siteSteps: IntegrationStep<IntegrationConfig>[] = [
     entities: [Entities.SITE],
     relationships: [Relationships.ACCOUNT_HAS_SITE],
     executionHandler: fetchSites,
-    dependsOn: [Steps.ACCOUNT, Steps.USERS],
+    dependsOn: [
+      Steps.ACCOUNT,
+      Steps.DEVICES,
+      Steps.FINDING_DEVICE_RELATIONSHIPS,
+    ],
   },
   {
     id: Steps.SITE_DEVICES_RELATIONSHIPS,

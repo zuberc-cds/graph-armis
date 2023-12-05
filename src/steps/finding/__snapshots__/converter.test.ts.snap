@@ -1,19 +1,19 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`#createAlertFindingEntity should convert to alert entity 1`] = `
-Object {
-  "_class": Array [
+{
+  "_class": [
     "Finding",
   ],
   "_key": "armis-alert-219",
-  "_rawData": Array [
-    Object {
+  "_rawData": [
+    {
       "name": "default",
-      "rawData": Object {
+      "rawData": {
         "alertId": 219,
         "classification": "Security - Other",
         "description": "When data is sent encrypted on the network, it dramatically reduces the impact of that data being intercepted by someone that should not have it. Not all data needs to be encrypted, especially when that data is traversing an internal network. Unencrypted protocols can be potentially intercepted resulting in sensitive company information being stolen.",
-        "deviceIds": Array [
+        "deviceIds": [
           133,
         ],
         "policyId": 110807,
@@ -45,15 +45,15 @@ Object {
 `;
 
 exports[`#createAlertFindingEntity should convert to vulnerability entity 1`] = `
-Object {
-  "_class": Array [
+{
+  "_class": [
     "Vulnerability",
   ],
   "_key": "armis-vulnerability-CVE-2022-32845",
-  "_rawData": Array [
-    Object {
+  "_rawData": [
+    {
       "name": "default",
-      "rawData": Object {
+      "rawData": {
         "affectedDevicesCount": 3,
         "attackComplexity": "Low",
         "attackVector": "Network",
@@ -85,7 +85,7 @@ Object {
   "displayName": "armis-vulnerability-CVE-2022-32845",
   "exploitability": 3.9,
   "impact": 6,
-  "impacts": Array [
+  "impacts": [
     "devices",
   ],
   "name": "armis-vulnerability-CVE-2022-32845",

@@ -25,7 +25,7 @@ export const deviceSpec: StepSpec<IntegrationConfig>[] = [
         targetType: 'armis_device',
       },
     ],
-    dependsOn: [Steps.ACCOUNT, Steps.SITES],
+    dependsOn: [Steps.ACCOUNT],
     implemented: true,
   },
 ];
