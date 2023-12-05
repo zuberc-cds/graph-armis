@@ -15,6 +15,16 @@ export const userSpec: StepSpec<IntegrationConfig>[] = [
         _type: 'armis_user',
         _class: ['User'],
       },
+      {
+        resourceName: 'AccessRole',
+        _type: 'armis_access_role',
+        _class: ['AccessRole'],
+      },
+      {
+        resourceName: 'Person',
+        _type: 'armis_person',
+        _class: ['Person'],
+      },
     ],
     relationships: [
       {
