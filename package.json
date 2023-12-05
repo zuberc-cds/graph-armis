@@ -1,10 +1,10 @@
 {
-  "name": "@jupiterone/integration-template",
-  "version": "0.0.0",
+  "name": "@jupiterone/graph-armis",
+  "version": "1.0.0",
   "description": "A JupiterOne Integration",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JupiterOne/integration-template"
+    "url": "https://github.com/JupiterOne/graph-armis"
   },
   "license": "MPL-2.0",
   "main": "src/index.js",
