@@ -17,7 +17,7 @@ import {
   ArmisVulnerability,
 } from './types';
 
-export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
+export type ResourceIteratee = () => Promise<void> | void;
 
 type responseData = {
   data: {
@@ -47,7 +47,9 @@ export interface ProviderResponse<T> extends NodeFetchResponse {
 }
 
 export enum Method {
+  // eslint-disable-next-line no-unused-vars
   GET = 'get',
+  // eslint-disable-next-line no-unused-vars
   POST = 'post',
 }
 
@@ -56,7 +58,7 @@ const ITEMS_PER_PAGE = 200;
 export class APIClient {
   authToken: string;
   logger: IntegrationLogger;
-  constructor(readonly config: IntegrationConfig) {}
+  constructor() {}
 
   private readonly BASE_URL = 'https://' + this.config.host;
 
