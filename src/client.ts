@@ -17,7 +17,8 @@ import {
   ArmisVulnerability,
 } from './types';
 
-export type ResourceIteratee = () => Promise<void> | void;
+// eslint-disable-next-line no-unused-vars
+export type ResourceIteratee<T> = (each: T) => Promise<void> | void;
 
 type responseData = {
   data: {
