@@ -1,7 +1,7 @@
 {
   "name": "@jupiterone/graph-armis",
-  "version": "1.0.0",
-  "description": "A JupiterOne Integration",
+  "version": "0.1.0",
+  "description": "An integration and graph conversion project for Armis",
   "repository": {
     "type": "git",
     "url": "https://github.com/JupiterOne/graph-armis"
