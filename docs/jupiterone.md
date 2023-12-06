@@ -1,4 +1,4 @@
-# {{provider}}
+#TODO - Rewrite this README
 
 ## Integration Benefits
 
@@ -114,9 +114,9 @@ The following relationships are created:
 
 | Source Entity `_type` | Relationship `_class` | Target Entity `_type` |
 | --------------------- | --------------------- | --------------------- |
-| `armis_account`       | **MANAGES**           | `armis_device`        |
 | `armis_account`       | **HAS**               | `armis_site`          |
 | `armis_account`       | **HAS**               | `armis_user`          |
+| `armis_account`       | **MANAGES**           | `armis_device`        |
 | `armis_device`        | **HAS**               | `armis_finding`       |
 | `armis_device`        | **HAS**               | `armis_finding_alert` |
 | `armis_finding`       | **IS**                | `armis_vulnerability` |
